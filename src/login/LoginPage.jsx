@@ -5,6 +5,7 @@ import { sendPageEvent, sendTrackEvent } from '@edx/frontend-platform/analytics'
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { Form, StatefulButton } from '@openedx/paragon';
 import PropTypes from 'prop-types';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
 import { Link, useLocation } from 'react-router-dom';
@@ -40,7 +41,6 @@ const LoginPage = ({
   institutionLogin,
   handleInstitutionLogin,
 }) => {
-  // Context for third-party auth
   const {
     thirdPartyAuthApiStatus,
     thirdPartyAuthContext,
@@ -48,6 +48,7 @@ const LoginPage = ({
     setThirdPartyAuthContextSuccess,
     setThirdPartyAuthContextFailure,
   } = useThirdPartyAuthContext();
+
   const location = useLocation();
 
   const {
@@ -57,13 +58,13 @@ const LoginPage = ({
     setErrors,
   } = useLoginContext();
 
-  // React Query for server state
   const [loginResult, setLoginResult] = useState({ success: false, redirectUrl: '' });
   const [errorCode, setErrorCode] = useState({
     type: '',
     count: 0,
     context: {},
   });
+
   const { mutate: loginUser, isPending: isLoggingIn } = useLogin({
     onSuccess: (data) => {
       setLoginResult({ success: true, redirectUrl: data.redirectUrl || '' });
@@ -77,8 +78,11 @@ const LoginPage = ({
     },
   });
 
-  const [showResetPasswordSuccessBanner,
-    setShowResetPasswordSuccessBanner] = useState(location.state?.showResetPasswordSuccessBanner || null);
+  const [
+    showResetPasswordSuccessBanner,
+    setShowResetPasswordSuccessBanner,
+  ] = useState(location.state?.showResetPasswordSuccessBanner || null);
+
   const {
     providers,
     currentProvider,
@@ -87,24 +91,27 @@ const LoginPage = ({
     platformName,
     errorMessage: thirdPartyErrorMessage,
   } = thirdPartyAuthContext;
+
   const { formatMessage } = useIntl();
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const activationMsgType = getActivationStatus();
   const queryParams = useMemo(() => getAllPossibleQueryParams(), []);
-
   const tpaHint = useMemo(() => getTpaHint(), []);
+
   const params = { ...queryParams };
   if (tpaHint) {
     params.tpa_hint = tpaHint;
   }
+
   const { data, isSuccess, error } = useThirdPartyAuthHook(LOGIN_PAGE, params);
 
   useEffect(() => {
     sendPageEvent('login_and_registration', 'login');
   }, []);
 
-  // Fetch third-party auth context data
   useEffect(() => {
     setThirdPartyAuthContextBegin();
+
     if (isSuccess && data) {
       setThirdPartyAuthContextSuccess(
         data.fieldDescriptions,
@@ -112,15 +119,24 @@ const LoginPage = ({
         data.thirdPartyAuthContext,
       );
     }
+
     if (error) {
       setThirdPartyAuthContextFailure();
     }
-  }, [tpaHint, queryParams, isSuccess, data, error,
-    setThirdPartyAuthContextBegin, setThirdPartyAuthContextSuccess, setThirdPartyAuthContextFailure]);
+  }, [
+    tpaHint,
+    queryParams,
+    isSuccess,
+    data,
+    error,
+    setThirdPartyAuthContextBegin,
+    setThirdPartyAuthContextSuccess,
+    setThirdPartyAuthContextFailure,
+  ]);
 
   useEffect(() => {
     if (thirdPartyErrorMessage) {
-      setErrorCode((prevState) => ({
+      setErrorCode(prevState => ({
         type: TPA_AUTHENTICATION_FAILURE,
         count: prevState.count + 1,
         context: {
@@ -142,6 +158,7 @@ const LoginPage = ({
     } else if (emailOrUsername.length < 2) {
       fieldErrors.emailOrUsername = formatMessage(messages['username.or.email.format.validation.less.chars.message']);
     }
+
     if (password === '') {
       fieldErrors.password = formatMessage(messages['password.validation.message']);
     }
@@ -149,14 +166,16 @@ const LoginPage = ({
     return { ...fieldErrors };
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
     if (showResetPasswordSuccessBanner) {
       setShowResetPasswordSuccessBanner(false);
     }
 
     const formData = { ...formFields };
     const validationErrors = validateFormFields(formData);
+
     if (validationErrors.emailOrUsername || validationErrors.password) {
       setErrors(validationErrors);
       setErrorCode(prev => ({
@@ -167,13 +186,39 @@ const LoginPage = ({
       return;
     }
 
-    // add query params to the payload
     const payload = {
       email_or_username: formData.emailOrUsername,
       password: formData.password,
       ...queryParams,
     };
-    loginUser(payload);
+
+    if (!executeRecaptcha) {
+      setErrorCode(prev => ({
+        type: INVALID_FORM,
+        count: prev.count + 1,
+        context: {
+          errorMessage: 'reCAPTCHA is not available.',
+        },
+      }));
+      return;
+    }
+
+    try {
+      const token = await executeRecaptcha('login');
+
+      loginUser({
+        ...payload,
+        recaptcha_token: token,
+      });
+    } catch (recaptchaError) {
+      setErrorCode(prev => ({
+        type: INVALID_FORM,
+        count: prev.count + 1,
+        context: {
+          errorMessage: 'Unable to verify reCAPTCHA.',
+        },
+      }));
+    }
   };
 
   const handleOnChange = (event) => {
@@ -181,7 +226,7 @@ const LoginPage = ({
       name,
       value,
     } = event.target;
-    // Save to context for persistence across tab switches
+
     setFormFields(prevState => ({
       ...prevState,
       [name]: value,
@@ -195,6 +240,7 @@ const LoginPage = ({
       [name]: '',
     }));
   };
+
   const trackForgotPasswordLinkClick = () => {
     sendTrackEvent('edx.bi.password-reset_form.toggled', { category: 'user-engagement' });
   };
