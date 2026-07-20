@@ -1,10 +1,10 @@
-import React from 'react';
-
 import { getConfig } from '@edx/frontend-platform';
 import { AppProvider } from '@edx/frontend-platform/react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+import CbaAuthnChrome from './CbaAuthnChrome';
 import {
   EmbeddedRegistrationRoute, NotFoundPage, registerIcons, UnAuthOnlyRoute, Zendesk,
 } from './common-components';
@@ -28,35 +28,49 @@ import { RegistrationPage } from './register';
 import { ResetPasswordPage } from './reset-password';
 
 import './index.scss';
+import './styles.scss';
 
 registerIcons();
+const RECAPTCHA_SITE_KEY = '6LfKR8EsAAAAAKgwPEkhC2k97upjknJxXJ2u-Jm7';
+
+const buildFaviconUrl = () => {
+  const configured = getConfig().FAVICON_URL;
+  if (configured) {
+    return configured;
+  }
+  const lmsBaseUrl = (getConfig().LMS_BASE_URL || '').replace(/\/$/, '');
+  return lmsBaseUrl ? `${lmsBaseUrl}/theming/asset/images/favicon.ico` : '/theming/asset/images/favicon.ico';
+};
 
 const MainApp = () => (
   <AppProvider store={configureStore()}>
-    <Helmet>
-      <link rel="shortcut icon" href={getConfig().FAVICON_URL} type="image/x-icon" />
-    </Helmet>
-    {getConfig().ZENDESK_KEY && <Zendesk />}
-    <Routes>
-      <Route path="/" element={<Navigate replace to={updatePathWithQueryParams(REGISTER_PAGE)} />} />
-      <Route
-        path={REGISTER_EMBEDDED_PAGE}
-        element={<EmbeddedRegistrationRoute><RegistrationPage /></EmbeddedRegistrationRoute>}
-      />
-      <Route
-        path={LOGIN_PAGE}
-        element={
-          <UnAuthOnlyRoute><Logistration selectedPage={LOGIN_PAGE} /></UnAuthOnlyRoute>
-        }
-      />
-      <Route path={REGISTER_PAGE} element={<UnAuthOnlyRoute><Logistration /></UnAuthOnlyRoute>} />
-      <Route path={RESET_PAGE} element={<UnAuthOnlyRoute><ForgotPasswordPage /></UnAuthOnlyRoute>} />
-      <Route path={PASSWORD_RESET_CONFIRM} element={<ResetPasswordPage />} />
-      <Route path={AUTHN_PROGRESSIVE_PROFILING} element={<ProgressiveProfiling />} />
-      <Route path={RECOMMENDATIONS} element={<RecommendationsPage />} />
-      <Route path={PAGE_NOT_FOUND} element={<NotFoundPage />} />
-      <Route path="*" element={<Navigate replace to={PAGE_NOT_FOUND} />} />
-    </Routes>
+    <CbaAuthnChrome>
+      <Helmet>
+        <link rel="shortcut icon" href={buildFaviconUrl()} type="image/x-icon" />
+        <script src={`https://www.google.com/recaptcha/enterprise.js?render=explicit&sitekey=${RECAPTCHA_SITE_KEY}`} />
+      </Helmet>
+      {getConfig().ZENDESK_KEY && <Zendesk />}
+      <Routes>
+        <Route path="/" element={<Navigate replace to={updatePathWithQueryParams(REGISTER_PAGE)} />} />
+        <Route
+          path={REGISTER_EMBEDDED_PAGE}
+          element={<EmbeddedRegistrationRoute><RegistrationPage /></EmbeddedRegistrationRoute>}
+        />
+        <Route
+          path={LOGIN_PAGE}
+          element={
+            <UnAuthOnlyRoute><Logistration selectedPage={LOGIN_PAGE} /></UnAuthOnlyRoute>
+          }
+        />
+        <Route path={REGISTER_PAGE} element={<UnAuthOnlyRoute><Logistration /></UnAuthOnlyRoute>} />
+        <Route path={RESET_PAGE} element={<UnAuthOnlyRoute><ForgotPasswordPage /></UnAuthOnlyRoute>} />
+        <Route path={PASSWORD_RESET_CONFIRM} element={<ResetPasswordPage />} />
+        <Route path={AUTHN_PROGRESSIVE_PROFILING} element={<ProgressiveProfiling />} />
+        <Route path={RECOMMENDATIONS} element={<RecommendationsPage />} />
+        <Route path={PAGE_NOT_FOUND} element={<NotFoundPage />} />
+        <Route path="*" element={<Navigate replace to={PAGE_NOT_FOUND} />} />
+      </Routes>
+    </CbaAuthnChrome>
   </AppProvider>
 );
 
