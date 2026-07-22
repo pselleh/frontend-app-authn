@@ -22,7 +22,10 @@ export default function Header({ dark = false, onToggleDark = null }) {
       <nav className="navbar cba-navbar navbar-expand-lg navbar-dark">
         <div className="container cba-nav__inner">
           <a className="navbar-brand cba-nav__brand d-flex align-items-center" href={`${lms}/`}>
-            <img src={`${lms}/static/cba-theme/images/logo.svg`} alt="Center for Business Acceleration" />
+            <img
+  		src={`${window.location.origin}/static/cba-theme/images/logo.svg`}
+  		alt="Center for Business Acceleration"
+		/>
           </a>
 
           <button className="navbar-toggler cba-nav__toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

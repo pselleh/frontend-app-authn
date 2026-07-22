@@ -13,9 +13,7 @@ const LargeLayout = ({ fullName }) => {
   return (
     <div className="w-50 d-flex">
       <div className="col-md-10 bg-light-200 p-0">
-        <Hyperlink destination={getConfig().MARKETING_SITE_BASE_URL}>
-          <Image className="logo position-absolute" alt={getConfig().SITE_NAME} src={getConfig().LOGO_URL} />
-        </Hyperlink>
+        {/* Logo rendered by CbaAuthnChrome */}
         <div className="min-vh-100 d-flex align-items-center">
           <div className="large-screen-left-container mr-n4.5 large-yellow-line mt-5" />
           <div>
