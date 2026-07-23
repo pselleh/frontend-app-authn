@@ -14,9 +14,7 @@ const SmallLayout = () => {
     <span className="bg-primary-400 w-100">
       <div className="col-md-12 small-screen-top-stripe" />
       <div>
-        <Hyperlink destination={getConfig().MARKETING_SITE_BASE_URL}>
-          <Image className="logo-small" alt={getConfig().SITE_NAME} src={getConfig().LOGO_WHITE_URL} />
-        </Hyperlink>
+        {/* Logo rendered by CbaAuthnChrome */}
         <div className="d-flex align-items-center m-3.5">
           <div className={classNames({ 'small-yellow-line mr-n2.5': getConfig().SITE_NAME === 'edX' })} />
           <h1
