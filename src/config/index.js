@@ -1,4 +1,7 @@
 const configuration = {
+  APP_ID: process.env.APP_ID || 'authn',
+  MFE_CONFIG_API_URL: process.env.MFE_CONFIG_API_URL || '/api/mfe_config/v1',
+
   // Cookies related configs
   SESSION_COOKIE_DOMAIN: process.env.SESSION_COOKIE_DOMAIN,
   USER_RETENTION_COOKIE_NAME: process.env.USER_RETENTION_COOKIE_NAME || '',
