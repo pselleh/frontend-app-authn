@@ -59,11 +59,16 @@ export default function CbaAuthnChrome({ children }) {
   }, [dark]);
 
   useEffect(() => {
-    const widgetIds = {};
+    window.__cbaRecaptchaWidgets =
+      window.__cbaRecaptchaWidgets || {};
+
+    const widgetIds = window.__cbaRecaptchaWidgets;
     const targetForms = [
       { formId: 'sign-in-form', action: 'LOGIN' },
       { formId: 'registration-form', action: 'REGISTER' },
-    ];
+      { formId: 'forget-password-form', action: 'PASSWORD_RESET' },
+      { formId: 'set-reset-password-form', action: 'PASSWORD_RESET_CONFIRM' },
+];
 
     const ensureWidgets = () => {
       const grecaptchaApi = window.grecaptcha?.enterprise;
@@ -76,8 +81,16 @@ export default function CbaAuthnChrome({ children }) {
         const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
         if (!submitBtn?.parentNode) return;
 
+        if (widgetIds[formId] !== undefined) {
+          return;
+        }
+
         const existingSlot = form.querySelector('.cba-recaptcha-slot');
-        if (!existingSlot) {
+        if (existingSlot) {
+          return;
+        }
+
+        {
           const slot = document.createElement('div');
           slot.className = 'cba-recaptcha-slot';
           submitBtn.parentNode.insertBefore(slot, submitBtn);
