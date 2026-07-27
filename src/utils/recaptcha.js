@@ -1,14 +1,23 @@
-export function getRecaptchaToken(formId) {
-  const widgetId = window.__cbaRecaptchaWidgets?.[formId];
+const RECAPTCHA_SITE_KEY = '6LfUtmgtAAAAAAOoA4LdathmlyWycPtPUZ2HtH5JL';
 
-  if (!widgetId) {
-    throw new Error(`No reCAPTCHA widget registered for ${formId}`);
+export async function getRecaptchaToken(action) {
+  if (!window.grecaptcha?.enterprise) {
+    throw new Error('reCAPTCHA Enterprise is not loaded');
   }
 
-  const token = window.grecaptcha?.enterprise?.getResponse(widgetId);
+  await new Promise((resolve) => {
+    window.grecaptcha.enterprise.ready(resolve);
+  });
+
+  const token = await window.grecaptcha.enterprise.execute(
+    RECAPTCHA_SITE_KEY,
+    {
+      action,
+    },
+  );
 
   if (!token) {
-    throw new Error("No reCAPTCHA token available");
+    throw new Error('Failed to obtain reCAPTCHA Enterprise token');
   }
 
   return token;

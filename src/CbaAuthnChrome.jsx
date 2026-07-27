@@ -5,7 +5,6 @@ import Header from './cba-shell/Header';
 import Footer from './cba-shell/Footer';
 
 const THEME_KEY = 'cba-theme';
-const RECAPTCHA_SITE_KEY = '6LfBVV0tAAAAAI2M3K2FFcMz2tbLZ2EXgkAo81G_';
 
 function getCookie(name) {
   if (typeof document === 'undefined') {
@@ -82,124 +81,6 @@ export default function CbaAuthnChrome({ children }) {
       setThemeCookie('light');
     }
   }, [dark]);
-
-  useEffect(() => {
-    window.__cbaRecaptchaWidgets =
-      window.__cbaRecaptchaWidgets || {};
-
-    const widgetIds = window.__cbaRecaptchaWidgets;
-
-    const targetForms = [
-      {
-        formId: 'sign-in-form',
-        action: 'LOGIN',
-      },
-      {
-        formId: 'registration-form',
-        action: 'REGISTER',
-      },
-      {
-        formId: 'forget-password-form',
-        action: 'PASSWORD_RESET',
-      },
-      {
-        formId: 'set-reset-password-form',
-        action: 'PASSWORD_RESET_CONFIRM',
-      },
-    ];
-
-    const ensureWidgets = () => {
-      const grecaptchaApi = window.grecaptcha?.enterprise;
-
-      if (!grecaptchaApi?.render) {
-        return;
-      }
-
-      targetForms.forEach(({ formId, action }) => {
-        const form = document.getElementById(formId);
-
-        if (!(form instanceof HTMLFormElement)) {
-          return;
-        }
-
-        if (widgetIds[formId] !== undefined) {
-          return;
-        }
-
-        const existingSlot = form.querySelector(
-          '.cba-recaptcha-slot',
-        );
-
-        if (existingSlot) {
-          return;
-        }
-
-        const submitBtn = form.querySelector(
-          'button[type="submit"], input[type="submit"]',
-        );
-
-        if (!submitBtn?.parentNode) {
-          return;
-        }
-
-        const slot = document.createElement('div');
-        slot.className = 'cba-recaptcha-slot';
-
-        submitBtn.parentNode.insertBefore(slot, submitBtn);
-
-        widgetIds[formId] = grecaptchaApi.render(slot, {
-          sitekey: RECAPTCHA_SITE_KEY,
-          action,
-        });
-      });
-    };
-
-    const renderLoop = window.setInterval(
-      ensureWidgets,
-      350,
-    );
-
-    ensureWidgets();
-
-    const submitHandler = (event) => {
-      const form = event.target;
-
-      if (!(form instanceof HTMLFormElement)) {
-        return;
-      }
-
-      const widgetId = widgetIds[form.id];
-
-      if (widgetId === undefined) {
-        return;
-      }
-
-      const token =
-        window.grecaptcha?.enterprise?.getResponse?.(
-          widgetId,
-        );
-
-      if (!token) {
-        event.preventDefault();
-      }
-    };
-
-    document.addEventListener(
-      'submit',
-      submitHandler,
-      true,
-    );
-
-    return () => {
-      window.clearInterval(renderLoop);
-
-      document.removeEventListener(
-        'submit',
-        submitHandler,
-        true,
-      );
-    };
-  }, []);
 
   return (
     <div className="cba-layout">

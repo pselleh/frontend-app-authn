@@ -36,7 +36,7 @@ import './styles.scss';
 
 registerIcons();
 
-const RECAPTCHA_SITE_KEY = '6LfBVV0tAAAAAI2M3K2FFcMz2tbLZ2EXgkAo81G_';
+const RECAPTCHA_SITE_KEY = '6LfUtmgtAAAAAAOoA4LdathmlyWycPtPUZ2HtH5JL';
 
 const buildFaviconUrl = () => {
   const configured = getConfig().FAVICON_URL;
@@ -67,7 +67,7 @@ const MainApp = () => {
           />
 
           <script
-            src={`https://www.google.com/recaptcha/enterprise.js?render=explicit&sitekey=${RECAPTCHA_SITE_KEY}`}
+            src={`https://www.google.com/recaptcha/enterprise.js?render=${RECAPTCHA_SITE_KEY}`}
           />
         </Helmet>
 

@@ -33,6 +33,7 @@ import {
   updatePathWithQueryParams,
 } from '../data/utils';
 import ResetPasswordSuccess from '../reset-password/ResetPasswordSuccess';
+import { getRecaptchaToken } from '../utils/recaptcha';
 import { backupLoginFormBegin, dismissPasswordResetBanner, loginRequest } from './data/actions';
 import { INVALID_FORM, TPA_AUTHENTICATION_FAILURE } from './data/constants';
 import LoginFailureMessage from './LoginFailure';
@@ -92,7 +93,8 @@ const LoginPage = ({
   }, []);
 
   useEffect(() => {
-    const payload = { ...queryParams };
+    
+  const payload = { ...queryParams };
     if (tpaHint) {
       payload.tpa_hint = tpaHint;
     }
@@ -151,7 +153,7 @@ const LoginPage = ({
     return { ...fieldErrors };
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (showResetPasswordSuccessBanner) {
       dispatch(dismissPasswordResetBanner());
@@ -170,12 +172,33 @@ const LoginPage = ({
     }
 
     // add query params to the payload
+    
+    let recaptchaToken;
+
+    try {
+      recaptchaToken = await getRecaptchaToken('LOGIN');
+    } catch (error) {
+      setErrorCode((prevState) => ({
+        type: INVALID_FORM,
+        count: prevState.count + 1,
+        context: {
+          message: error.message,
+        },
+      }));
+      return;
+    }
+
     const payload = {
       email_or_username: formData.emailOrUsername,
       password: formData.password,
+      recaptcha_token: recaptchaToken,
+      recaptcha_action: 'LOGIN',
       ...queryParams,
     };
-    dispatch(loginRequest(payload));
+
+    dispatch(loginRequest(payload));    
+
+
   };
 
   const handleOnChange = (event) => {
