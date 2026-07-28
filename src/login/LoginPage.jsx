@@ -175,6 +175,8 @@ const LoginPage = ({
     
     let recaptchaToken;
 
+    console.log("Starting reCAPTCHA...");    
+
     try {
       recaptchaToken = await getRecaptchaToken('LOGIN');
     } catch (error) {
