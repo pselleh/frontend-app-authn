@@ -1,4 +1,4 @@
-const RECAPTCHA_SITE_KEY = '6LfUtmgtAAAAAAOoA4LdathmlyWycPtPUZ2HtH5JL';
+const RECAPTCHA_SITE_KEY = '6Lejtm4tAAAAAF91ZsfhhSR5nhgaXkDrjVteP1BO';
 
 export async function getRecaptchaToken(action) {
   console.log("grecaptcha =", window.grecaptcha);

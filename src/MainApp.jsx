@@ -36,7 +36,8 @@ import './styles.scss';
 
 registerIcons();
 
-const RECAPTCHA_SITE_KEY = '6LfUtmgtAAAAAAOoA4LdathmlyWycPtPUZ2HtH5JL';
+const RECAPTCHA_SITE_KEY =
+  '6Lejtm4tAAAAAF91ZsfhhSR5nhgaXkDrjVteP1BO';
 
 const buildFaviconUrl = () => {
   const configured = getConfig().FAVICON_URL;
