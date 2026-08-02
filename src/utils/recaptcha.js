@@ -1,38 +1,38 @@
-const RECAPTCHA_SITE_KEY = '6Lejtm4tAAAAAF91ZsfhhSR5nhgaXkDrjVteP1BO';
+import { getConfig } from '@edx/frontend-platform';
+
+const RECAPTCHA_SITE_KEY =
+  getConfig().RECAPTCHA_SITE_KEY;
+
+export const RECAPTCHA_ACTIONS = Object.freeze({
+  LOGIN: 'LOGIN',
+  REGISTER: 'REGISTER',
+  PASSWORD_RESET_REQUEST: 'PASSWORD_RESET_REQUEST',
+  PASSWORD_RESET_CONFIRM: 'PASSWORD_RESET_CONFIRM',
+  USERNAME_RECOVERY: 'USERNAME_RECOVERY',
+  RESEND_ACTIVATION: 'RESEND_ACTIVATION',
+});
 
 export async function getRecaptchaToken(action) {
-  console.log("grecaptcha =", window.grecaptcha);
-  console.log("enterprise =", window.grecaptcha?.enterprise);
-
-  if (!window.grecaptcha?.enterprise) {
-    throw new Error("Enterprise library missing");
+  if (!Object.values(RECAPTCHA_ACTIONS).includes(action)) {
+    throw new Error('Invalid reCAPTCHA action.');
   }
 
-  console.log("waiting for ready()");
+  if (!window.grecaptcha?.enterprise) {
+    throw new Error('reCAPTCHA Enterprise is unavailable.');
+  }
 
   await new Promise((resolve) => {
     window.grecaptcha.enterprise.ready(resolve);
   });
 
-  console.log("calling execute()");
+  const token = await window.grecaptcha.enterprise.execute(
+    RECAPTCHA_SITE_KEY,
+    { action },
+  );
 
-  try {
-    const token = await window.grecaptcha.enterprise.execute(
-      RECAPTCHA_SITE_KEY,
-      { action },
-    );
-
-    console.log("execute returned:", token);
-
-    if (!token) {
-      throw new Error("execute() returned empty token");
-    }
-
-    return token;
-  } catch (err) {
-    console.error("execute FAILED:", err);
-    console.error("name:", err?.name);
-    console.error("message:", err?.message);
-    throw err;
+  if (!token) {
+    throw new Error('reCAPTCHA returned an empty token.');
   }
+
+  return token;
 }

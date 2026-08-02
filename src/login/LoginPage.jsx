@@ -33,7 +33,10 @@ import {
   updatePathWithQueryParams,
 } from '../data/utils';
 import ResetPasswordSuccess from '../reset-password/ResetPasswordSuccess';
-import { getRecaptchaToken } from '../utils/recaptcha';
+import {
+  getRecaptchaToken,
+  RECAPTCHA_ACTIONS,
+} from '../utils/recaptcha';
 import { backupLoginFormBegin, dismissPasswordResetBanner, loginRequest } from './data/actions';
 import { INVALID_FORM, TPA_AUTHENTICATION_FAILURE } from './data/constants';
 import LoginFailureMessage from './LoginFailure';
@@ -173,12 +176,12 @@ const LoginPage = ({
 
     // add query params to the payload
     
-    let recaptchaToken;
-
-    console.log("Starting reCAPTCHA...");    
+    let recaptchaToken;  
 
     try {
-      recaptchaToken = await getRecaptchaToken('LOGIN');
+      recaptchaToken = await getRecaptchaToken(
+        RECAPTCHA_ACTIONS.LOGIN,
+      );
     } catch (error) {
       setErrorCode((prevState) => ({
         type: INVALID_FORM,
@@ -194,7 +197,7 @@ const LoginPage = ({
       email_or_username: formData.emailOrUsername,
       password: formData.password,
       recaptcha_token: recaptchaToken,
-      recaptcha_action: 'LOGIN',
+      recaptcha_action: RECAPTCHA_ACTIONS.LOGIN,
       ...queryParams,
     };
 
