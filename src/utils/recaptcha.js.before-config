@@ -1,0 +1,36 @@
+const RECAPTCHA_SITE_KEY =
+  '6Lejtm4tAAAAAF91ZsfhhSR5nhgaXkDrjVteP1BO';
+
+export const RECAPTCHA_ACTIONS = Object.freeze({
+  LOGIN: 'LOGIN',
+  REGISTER: 'REGISTER',
+  PASSWORD_RESET_REQUEST: 'PASSWORD_RESET_REQUEST',
+  PASSWORD_RESET_CONFIRM: 'PASSWORD_RESET_CONFIRM',
+  USERNAME_RECOVERY: 'USERNAME_RECOVERY',
+  RESEND_ACTIVATION: 'RESEND_ACTIVATION',
+});
+
+export async function getRecaptchaToken(action) {
+  if (!Object.values(RECAPTCHA_ACTIONS).includes(action)) {
+    throw new Error('Invalid reCAPTCHA action.');
+  }
+
+  if (!window.grecaptcha?.enterprise) {
+    throw new Error('reCAPTCHA Enterprise is unavailable.');
+  }
+
+  await new Promise((resolve) => {
+    window.grecaptcha.enterprise.ready(resolve);
+  });
+
+  const token = await window.grecaptcha.enterprise.execute(
+    RECAPTCHA_SITE_KEY,
+    { action },
+  );
+
+  if (!token) {
+    throw new Error('reCAPTCHA returned an empty token.');
+  }
+
+  return token;
+}
