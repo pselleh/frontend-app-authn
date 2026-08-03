@@ -1,6 +1,10 @@
 import { snakeCaseObject } from '@edx/frontend-platform';
 
-import { LETTER_REGEX, NUMBER_REGEX } from '../../data/constants';
+import {
+  evaluatePassword,
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MAX_LENGTH,
+} from '../../utils/passwordPolicy';
 import messages from '../messages';
 import validateEmail from '../RegistrationFields/EmailField/validator';
 import validateName from '../RegistrationFields/NameField/validator';
@@ -12,12 +16,46 @@ import validateUsername from '../RegistrationFields/UsernameField/validator';
  * @param formatMessage
  * @returns {string}
  */
-export const validatePasswordField = (value, formatMessage) => {
-  let fieldError = '';
-  if (!value || !LETTER_REGEX.test(value) || !NUMBER_REGEX.test(value) || value.length < 8) {
-    fieldError = formatMessage(messages['password.validation.message']);
+export const validatePasswordField = (
+  value,
+  formatMessage,
+  personalData = {},
+) => {
+  const result = evaluatePassword(value, personalData);
+
+  if (result.checks.minimumLength === false) {
+    return formatMessage(
+      messages['password.minimum.length'],
+      { length: PASSWORD_MIN_LENGTH },
+    );
   }
-  return fieldError;
+
+  if (result.checks.maximumLength === false) {
+    return formatMessage(
+      messages['password.maximum.length'],
+      { length: PASSWORD_MAX_LENGTH },
+    );
+  }
+
+  if (result.checks.noLeadingOrTrailingWhitespace === false) {
+    return formatMessage(
+      messages['password.leading.trailing.whitespace'],
+    );
+  }
+
+  if (result.checks.excludesPersonalData === false) {
+    return formatMessage(
+      messages['password.personal.data'],
+    );
+  }
+
+  if (result.checks.sufficientStrength === false) {
+    return formatMessage(
+      messages['password.too.weak'],
+    );
+  }
+
+  return '';
 };
 
 /**
@@ -74,9 +112,23 @@ export const isFormValid = (
       break;
     case 'password':
       if (!fieldErrors.password) {
-        fieldErrors.password = validatePasswordField(payload.password, formatMessage);
+        fieldErrors.password = validatePasswordField(
+          payload.password,
+          formatMessage,
+          {
+            name: payload.name,
+            email: payload.email,
+            username: payload.username,
+            organizationCode:
+              payload.organizationCode || payload.organization_code || '',
+          },
+        );
       }
-      if (fieldErrors.password) { isValid = false; }
+
+      if (fieldErrors.password) {
+        isValid = false;
+      }
+
       break;
     default:
       break;

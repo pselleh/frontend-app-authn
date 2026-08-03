@@ -348,7 +348,12 @@ const RegistrationPage = (props) => {
                   handleErrorChange={handleErrorChange}
                   errorMessage={errors.password}
                   floatingLabel={formatMessage(messages['registration.password.label'])}
-                />
+
+                  nameValue={formFields.name}
+                  emailValue={formFields.email}
+                  usernameValue={formFields.username}
+                  organizationCode={formFields.organization_code || ''}     
+                  />
               )}
               <ConfigurableRegistrationForm
                 email={formFields.email}

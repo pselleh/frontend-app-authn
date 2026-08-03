@@ -76,6 +76,56 @@ const messages = defineMessages({
     defaultMessage: 'Password must contain at least 8 characters, at least one letter, and at least one number',
     description: 'Password helping text for the sr-only class',
   },
+  'password.requirement.length': {
+    id: 'password.requirement.length',
+    defaultMessage: '15–64 characters',
+    description: 'Modern password length requirement',
+  },
+  'password.requirement.whitespace': {
+    id: 'password.requirement.whitespace',
+    defaultMessage: 'No leading or trailing spaces',
+    description: 'Password whitespace requirement',
+  },
+  'password.requirement.personal': {
+    id: 'password.requirement.personal',
+    defaultMessage: 'Does not contain your name, username, email, or Organization Code',
+    description: 'Password personal information requirement',
+  },
+  'password.requirement.strength': {
+    id: 'password.requirement.strength',
+    defaultMessage: 'Strong password or passphrase',
+    description: 'Password strength requirement',
+  },
+  'password.strength.label': {
+    id: 'password.strength.label',
+    defaultMessage: 'Password strength',
+    description: 'Password strength label',
+  },
+  'password.strength.veryWeak': {
+    id: 'password.strength.veryWeak',
+    defaultMessage: 'Very Weak',
+    description: 'Password strength level',
+  },
+  'password.strength.weak': {
+    id: 'password.strength.weak',
+    defaultMessage: 'Weak',
+    description: 'Password strength level',
+  },
+  'password.strength.fair': {
+    id: 'password.strength.fair',
+    defaultMessage: 'Fair',
+    description: 'Password strength level',
+  },
+  'password.strength.strong': {
+    id: 'password.strength.strong',
+    defaultMessage: 'Strong',
+    description: 'Password strength level',
+  },
+  'password.strength.veryStrong': {
+    id: 'password.strength.veryStrong',
+    defaultMessage: 'Very Strong',
+    description: 'Password strength level',
+  },
   // third party auth
   'tpa.alert.heading': {
     id: 'tpa.alert.heading',

@@ -126,10 +126,30 @@ const messages = defineMessages({
     defaultMessage: 'Enter a valid name',
     description: 'Validation message that appears when fullname contain URL',
   },
-  'password.validation.message': {
-    id: 'password.validation.message',
-    defaultMessage: 'Password criteria has not been met',
-    description: 'Error message for empty or invalid password',
+  'password.minimum.length': {
+    id: 'password.minimum.length',
+    defaultMessage: 'Password must be at least {length} characters long.',
+    description: 'Password minimum length validation',
+  },
+  'password.maximum.length': {
+    id: 'password.maximum.length',
+    defaultMessage: 'Password cannot exceed {length} characters.',
+    description: 'Password maximum length validation',
+  },
+  'password.leading.trailing.whitespace': {
+    id: 'password.leading.trailing.whitespace',
+    defaultMessage: 'Password cannot begin or end with spaces.',
+    description: 'Password whitespace validation',
+  },
+  'password.personal.data': {
+    id: 'password.personal.data',
+    defaultMessage: 'Password cannot contain your name, username, email address, or Organization Code.',
+    description: 'Password contains personal information',
+  },
+  'password.too.weak': {
+    id: 'password.too.weak',
+    defaultMessage: 'Choose a stronger password or passphrase.',
+    description: 'Password strength validation',
   },
   'username.format.validation.message': {
     id: 'username.format.validation.message',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useIntl } from '@edx/frontend-platform/i18n';
@@ -11,9 +11,13 @@ import {
 import PropTypes from 'prop-types';
 
 import messages from './messages';
-import { LETTER_REGEX, NUMBER_REGEX } from '../data/constants';
 import { clearRegistrationBackendError, fetchRealtimeValidations } from '../register/data/actions';
 import { validatePasswordField } from '../register/data/utils';
+import {
+  evaluatePassword,
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MAX_LENGTH,
+} from '../utils/passwordPolicy';
 
 const PasswordField = (props) => {
   const { formatMessage } = useIntl();
@@ -22,6 +26,26 @@ const PasswordField = (props) => {
   const validationApiRateLimited = useSelector(state => state.register.validationApiRateLimited);
   const [isPasswordHidden, setHiddenTrue, setHiddenFalse] = useToggle(true);
   const [showTooltip, setShowTooltip] = useState(false);
+    
+  const personalData = useMemo(
+    () => ({
+      name: props.nameValue,
+      email: props.emailValue,
+      username: props.usernameValue,
+      organizationCode: props.organizationCode,
+    }),
+    [
+      props.nameValue,
+      props.emailValue,
+      props.usernameValue,
+      props.organizationCode,
+    ],
+  );
+
+  const passwordEvaluation = useMemo(
+    () => evaluatePassword(props.value, personalData),
+    [props.value, personalData],
+  );
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
@@ -46,9 +70,18 @@ const PasswordField = (props) => {
 
     setShowTooltip(props.showRequirements && false);
     if (props.handleErrorChange) { // If rendering from register page
-      const fieldError = validatePasswordField(passwordValue, formatMessage);
+      const fieldError = validatePasswordField(
+        passwordValue,
+        formatMessage,
+        {
+          name: props.nameValue,
+          email: props.emailValue,
+          username: props.usernameValue,
+          organizationCode: props.organizationCode,
+        },
+      );
       if (fieldError) {
-        props.handleErrorChange('password', fieldError);
+        props.handleErrorChange(props.name, fieldError);
       } else if (!validationApiRateLimited) {
         dispatch(fetchRealtimeValidations({ password: passwordValue }));
       }
@@ -64,8 +97,8 @@ const PasswordField = (props) => {
       props.handleFocus(e);
     }
     if (props.handleErrorChange) {
-      props.handleErrorChange('password', '');
-      dispatch(clearRegistrationBackendError('password'));
+      props.handleErrorChange(props.name, '');
+      dispatch(clearRegistrationBackendError(props.name));
     }
     setTimeout(() => setShowTooltip(props.showRequirements && true), 150);
   };
@@ -101,20 +134,45 @@ const PasswordField = (props) => {
   const placement = window.innerWidth < 768 ? 'top' : 'left';
   const tooltip = (
     <Tooltip id={`password-requirement-${placement}`}>
-      <span id="letter-check" className="d-flex align-items-center">
-        {LETTER_REGEX.test(props.value) ? <Icon className="text-success mr-1" src={Check} /> : <Icon className="mr-1 text-light-700" src={Remove} />}
-        {formatMessage(messages['one.letter'])}
+
+      <span className="d-flex align-items-center">
+        {passwordEvaluation.checks.minimumLength ? (
+          <Icon className="text-success mr-1" src={Check} />
+        ) : (
+          <Icon className="mr-1 text-light-700" src={Remove} />
+        )}
+        {formatMessage(messages['password.requirement.length'])}
       </span>
-      <span id="number-check" className="d-flex align-items-center">
-        {NUMBER_REGEX.test(props.value) ? <Icon className="text-success mr-1" src={Check} /> : <Icon className="mr-1 text-light-700" src={Remove} />}
-        {formatMessage(messages['one.number'])}
+
+      <span className="d-flex align-items-center">
+        {passwordEvaluation.checks.noLeadingTrailingWhitespace ? (
+          <Icon className="text-success mr-1" src={Check} />
+        ) : (
+          <Icon className="mr-1 text-light-700" src={Remove} />
+        )}
+        {formatMessage(messages['password.requirement.whitespace'])}
       </span>
-      <span id="characters-check" className="d-flex align-items-center">
-        {props.value.length >= 8 ? <Icon className="text-success mr-1" src={Check} /> : <Icon className="mr-1 text-light-700" src={Remove} />}
-        {formatMessage(messages['eight.characters'])}
-      </span>
-    </Tooltip>
-  );
+
+    <span className="d-flex align-items-center">
+      {passwordEvaluation.checks.noPersonalData ? (
+        <Icon className="text-success mr-1" src={Check} />
+      ) : (
+        <Icon className="mr-1 text-light-700" src={Remove} />
+      )}
+      {formatMessage(messages['password.requirement.personal'])}
+    </span>
+
+    <span className="d-flex align-items-center">
+      {passwordEvaluation.checks.strength ? (
+        <Icon className="text-success mr-1" src={Check} />
+      ) : (
+        <Icon className="mr-1 text-light-700" src={Remove} />
+      )}
+      {formatMessage(messages['password.requirement.strength'])}
+    </span>
+
+  </Tooltip>
+);
 
   return (
     <Form.Group controlId={props.name} isInvalid={props.errorMessage !== ''}>
@@ -152,6 +210,12 @@ PasswordField.defaultProps = {
   handleFocus: null,
   handleChange: () => {},
   handleErrorChange: null,
+
+  nameValue: '',
+  emailValue: '',
+  usernameValue: '',
+  organizationCode: '',
+
   showRequirements: true,
   showScreenReaderText: true,
   autoComplete: null,
@@ -165,7 +229,15 @@ PasswordField.propTypes = {
   handleFocus: PropTypes.func,
   handleChange: PropTypes.func,
   handleErrorChange: PropTypes.func,
+
   name: PropTypes.string.isRequired,
+
+  // NEW
+  nameValue: PropTypes.string,
+  emailValue: PropTypes.string,
+  usernameValue: PropTypes.string,
+  organizationCode: PropTypes.string,
+
   showRequirements: PropTypes.bool,
   value: PropTypes.string.isRequired,
   autoComplete: PropTypes.string,
