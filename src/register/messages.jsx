@@ -17,6 +17,11 @@ const messages = defineMessages({
     defaultMessage: 'Email',
     description: 'Label that appears above email field on register page',
   },
+  'registration.organization.code.label': {
+    id: 'registration.organization.code.label',
+    defaultMessage: 'Organization Code',
+    description: 'Label for the Organization Code field',
+  },
   'registration.username.label': {
     id: 'registration.username.label',
     defaultMessage: 'Public username',
@@ -57,6 +62,11 @@ const messages = defineMessages({
     id: 'help.text.email',
     defaultMessage: 'For account activation and important updates',
     description: 'Help text for email field on registration page',
+  },
+  'help.text.organization.code': {
+    id: 'help.text.organization.code',
+    defaultMessage: 'Enter the Organization Code provided by your organization.',
+    description: 'Help text for Organization Code',
   },
   // Form buttons
   'create.account.for.free.button': {
@@ -126,6 +136,12 @@ const messages = defineMessages({
     defaultMessage: 'Enter a valid name',
     description: 'Validation message that appears when fullname contain URL',
   },
+  'organization.code.required': {
+    id: 'organization.code.required',
+    defaultMessage: 'Enter your Organization Code.',
+    description: 'Organization Code is required',
+  },
+
   'password.minimum.length': {
     id: 'password.minimum.length',
     defaultMessage: 'Password must be at least {length} characters long.',

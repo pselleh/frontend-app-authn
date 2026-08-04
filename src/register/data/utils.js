@@ -9,6 +9,8 @@ import messages from '../messages';
 import validateEmail from '../RegistrationFields/EmailField/validator';
 import validateName from '../RegistrationFields/NameField/validator';
 import validateUsername from '../RegistrationFields/UsernameField/validator';
+import validateOrganizationCode
+  from '../RegistrationFields/OrganizationCodeField/validator';
 
 /**
  * It validates the password field value
@@ -104,6 +106,19 @@ export const isFormValid = (
       if (fieldErrors.email) { isValid = false; }
       break;
     }
+    case 'organization_code':
+      if (!fieldErrors.organization_code) {
+        fieldErrors.organization_code = validateOrganizationCode(
+          payload.organization_code,
+          formatMessage,
+        );
+      }
+
+      if (fieldErrors.organization_code) {
+        isValid = false;
+      }
+
+      break;
     case 'username':
       if (!fieldErrors.username) {
         fieldErrors.username = validateUsername(payload.username, formatMessage);
@@ -184,6 +199,10 @@ export const prepareRegistrationPayload = (
   // Don't send the marketing email opt-in value if the flag is turned off
   if (!showMarketingEmailOptInCheckbox) {
     delete payload.marketingEmailsOptIn;
+  }
+
+  if (typeof payload.organization_code === 'string') {
+    payload.organization_code = payload.organization_code.trim();
   }
 
   payload.totalRegistrationTime = totalRegistrationTime;

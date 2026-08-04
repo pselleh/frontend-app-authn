@@ -1,5 +1,6 @@
 export { default as NameField } from './NameField/NameField';
 export { default as EmailField } from './EmailField/EmailField';
+export { default as OrganizationCodeField } from './OrganizationCodeField/OrganizationCodeField';
 export { default as UsernameField } from './UsernameField/UsernameField';
 export { default as CountryField } from './CountryField/CountryField';
 export { default as HonorCode } from './HonorCodeField/HonorCode';
