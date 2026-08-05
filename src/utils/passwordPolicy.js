@@ -8,7 +8,7 @@ import {
   translations,
 } from '@zxcvbn-ts/language-en';
 
-export const PASSWORD_MIN_LENGTH = 15;
+export const PASSWORD_MIN_LENGTH = 10;
 export const PASSWORD_MAX_LENGTH = 64;
 export const PASSWORD_MIN_SCORE = 3;
 
