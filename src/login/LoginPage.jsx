@@ -24,7 +24,11 @@ import { getThirdPartyAuthContext } from '../common-components/data/actions';
 import { thirdPartyAuthContextSelector } from '../common-components/data/selectors';
 import EnterpriseSSO from '../common-components/EnterpriseSSO';
 import ThirdPartyAuth from '../common-components/ThirdPartyAuth';
-import { PENDING_STATE, RESET_PAGE } from '../data/constants';
+import {
+  PENDING_STATE,
+  REGISTER_PAGE,
+  RESET_PAGE,
+} from '../data/constants';
 import {
   getActivationStatus,
   getAllPossibleQueryParams,
@@ -272,6 +276,14 @@ const LoginPage = ({
           errorCount={errorCode.count}
           context={errorCode.context}
         />
+
+        <h1 className="mb-3">
+          {formatMessage(messages['login.page.heading'])}
+        </h1>
+
+        <p className="mb-4">
+          {formatMessage(messages['login.page.subheading'])}
+        </p>
         <ThirdPartyAuthAlert
           currentProvider={currentProvider}
           platformName={platformName}
@@ -301,6 +313,18 @@ const LoginPage = ({
             errorMessage={errors.password}
             floatingLabel={formatMessage(messages['login.password.label'])}
           />
+          <div className="d-flex justify-content-end mb-3">
+            <Link
+              id="forgot-password"
+              name="forgot-password"
+              className="btn btn-link font-weight-500 text-body p-0"
+              to={updatePathWithQueryParams(RESET_PAGE)}
+              onClick={trackForgotPasswordLinkClick}
+            >
+              {formatMessage(messages['forgot.password'])}
+            </Link>
+          </div>
+
           <StatefulButton
             name="sign-in"
             id="sign-in"
@@ -315,15 +339,20 @@ const LoginPage = ({
             onClick={handleSubmit}
             onMouseDown={(event) => event.preventDefault()}
           />
-          <Link
-            id="forgot-password"
-            name="forgot-password"
-            className="btn btn-link font-weight-500 text-body"
-            to={updatePathWithQueryParams(RESET_PAGE)}
-            onClick={trackForgotPasswordLinkClick}
-          >
-            {formatMessage(messages['forgot.password'])}
-          </Link>
+
+          <div className="text-center mt-4">
+            <span>
+              {formatMessage(messages['new.user.label'])}
+              {' '}
+            </span>
+            <Link
+              id="create-account"
+              name="create-account"
+              to={updatePathWithQueryParams(REGISTER_PAGE)}
+            >
+              {formatMessage(messages['create.account.link'])}
+            </Link>
+          </div>
           <ThirdPartyAuth
             currentProvider={currentProvider}
             providers={providers}

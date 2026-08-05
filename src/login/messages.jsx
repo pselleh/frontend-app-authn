@@ -6,11 +6,23 @@ const messages = defineMessages({
     defaultMessage: 'Login | {siteName}',
     description: 'login page title',
   },
+  'login.page.heading': {
+    id: 'login.page.heading',
+    defaultMessage: 'Sign in',
+    description: 'Visible login page heading',
+  },
+
+  'login.page.subheading': {
+    id: 'login.page.subheading',
+    defaultMessage: 'Sign in to your account.',
+    description: 'Visible login page subheading',
+  },
+
   // Login labels
   'login.user.identity.label': {
     id: 'login.user.identity.label',
-    defaultMessage: 'Username or email',
-    description: 'Label for user identity field to enter either username or email to login',
+    defaultMessage: 'Email address',
+    description: 'Label for the email address field',
   },
   'login.password.label': {
     id: 'login.password.label',
@@ -24,7 +36,7 @@ const messages = defineMessages({
   },
   'forgot.password': {
     id: 'forgot.password',
-    defaultMessage: 'Forgot password',
+    defaultMessage: 'Forgot your password?',
     description: 'Button text for forgot password',
   },
   'institution.login.button': {
@@ -74,6 +86,22 @@ const messages = defineMessages({
     defaultMessage: 'Enter your password',
     description: 'Validation message that appears when password is empty',
   },
+
+  'new.user.label': {
+    id: 'new.user.label',
+    defaultMessage: 'New user?',
+    description: 'Label shown before the create account link',
+  },
+
+  'create.account.link': {
+    id: 'create.account.link',
+    defaultMessage: 'Create an account',
+    description: 'Create account link',
+  },
+
+// Account Activation Strings
+
+
   // Account Activation Strings
   'account.activation.success.message.title': {
     id: 'account.activation.success.message.title',
