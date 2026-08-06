@@ -32,7 +32,6 @@ import {
 import messages from './messages';
 import {
   EmailField,
-  NameField,
   OrganizationCodeField,
   UsernameField,
 } from './RegistrationFields';
@@ -313,16 +312,17 @@ const RegistrationPage = (props) => {
               context={{ provider: currentProvider, errorMessage: thirdPartyAuthErrorMessage }}
             />
             <Form id="registration-form" name="registration-form">
-              <NameField
-                name="name"
-                value={formFields.name}
-                shouldFetchUsernameSuggestions={!formFields.username.trim()}
-                handleChange={handleOnChange}
-                handleErrorChange={handleErrorChange}
-                errorMessage={errors.name}
-                helpText={[formatMessage(messages['help.text.name'])]}
-                floatingLabel={formatMessage(messages['registration.fullname.label'])}
-              />
+ 
+              <ConfigurableRegistrationForm
+                email={formFields.email}
+                fieldErrors={errors}
+                formFields={configurableFormFields}
+                setFieldErrors={registrationEmbedded ? setTemporaryErrors : setErrors}
+                setFormFields={setConfigurableFormFields}
+                autoSubmitRegistrationForm={autoSubmitRegForm}
+                fieldDescriptions={fieldDescriptions}
+               />
+
               <EmailField
                 name="email"
                 value={formFields.email}
@@ -375,15 +375,7 @@ const RegistrationPage = (props) => {
                   organizationCode={formFields.organization_code || ''}     
                   />
               )}
-              <ConfigurableRegistrationForm
-                email={formFields.email}
-                fieldErrors={errors}
-                formFields={configurableFormFields}
-                setFieldErrors={registrationEmbedded ? setTemporaryErrors : setErrors}
-                setFormFields={setConfigurableFormFields}
-                autoSubmitRegisterForm={autoSubmitRegForm}
-                fieldDescriptions={fieldDescriptions}
-              />
+              
               <StatefulButton
                 id="register-user"
                 name="register-user"
