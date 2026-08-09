@@ -206,19 +206,35 @@ describe('CountryField', () => {
     });
   });
 
-  it('does not auto-select backend country when country is optional', () => {
+  it('auto-selects backend country when country is optional', () => {
+    store = mockStore({
+      ...initialState,
+      register: {
+        ...initialState.register,
+        backendCountryCode: 'US',
+      },
+    });
+
     const optionalProps = {
       ...props,
       isRequired: false,
+      countryList: [
+        ...props.countryList,
+        {
+          [COUNTRY_CODE_KEY]: 'US',
+          [COUNTRY_DISPLAY_KEY]: 'United States',
+        },
+      ],
     };
 
     render(reduxWrapper(<CountryField {...optionalProps} />));
 
-    expect(props.onChangeHandler).not.toHaveBeenCalledWith(
+    expect(props.onChangeHandler).toHaveBeenCalledWith(
       { target: { name: 'country' } },
-      expect.objectContaining({
+      {
         countryCode: 'US',
-      }),
+        displayValue: 'United States',
+      },
     );
   });
 

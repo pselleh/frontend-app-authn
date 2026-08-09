@@ -163,7 +163,7 @@ const ConfigurableRegistrationForm = (props) => {
   }
 
   const showOptionalCountryField = Object.prototype.hasOwnProperty.call(
-    optionalFields,
+    optionalFields?.fields || {},
     'country',
   );
 

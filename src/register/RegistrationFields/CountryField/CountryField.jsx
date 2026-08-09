@@ -42,7 +42,7 @@ const CountryField = (props) => {
   const backendCountryCode = useSelector(state => state.register.backendCountryCode);
 
   useEffect(() => {
-    if (isRequired && backendCountryCode && backendCountryCode !== selectedCountry?.countryCode) {
+    if (backendCountryCode && backendCountryCode !== selectedCountry?.countryCode) {
       let countryCode = '';
       let countryDisplayValue = '';
 

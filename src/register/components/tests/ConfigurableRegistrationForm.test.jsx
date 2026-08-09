@@ -142,6 +142,27 @@ describe('ConfigurableRegistrationForm', () => {
       ENABLE_DYNAMIC_REGISTRATION_FIELDS: true,
     });
 
+    it('should render Country when country is returned as an optional field', () => {
+      props = {
+        ...props,
+        optionalFields: {
+          fields: {
+            country: {
+              name: 'country',
+              error_message: '',
+            },
+          },
+          extended_profile: [],
+        },
+      };
+
+      const { getByLabelText } = render(routerWrapper(reduxWrapper(
+        <ConfigurableRegistrationForm {...props} />,
+      )));
+
+      expect(getByLabelText('Country/Region')).toBeTruthy();
+    });
+
     it('should render fields returned by backend as field descriptions', () => {
       props = {
         ...props,
