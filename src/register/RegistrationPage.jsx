@@ -364,7 +364,7 @@ const RegistrationPage = (props) => {
 
               <OrganizationCodeField
                 name="organization_code"
-                value={formFields.organization_code}
+                value={formFields.organization_code || ''}
                 handleChange={handleOnChange}
                 handleErrorChange={handleErrorChange}
                 errorMessage={errors.organization_code}

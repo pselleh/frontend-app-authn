@@ -171,7 +171,7 @@ describe('RegistrationPage', () => {
     fireEvent.change(getByLabelText('Email'), { target: { value: payload.email, name: 'email' } });
     fireEvent.change(getByLabelText('Organization Code'), {
       target: {
-        value: payload.organization_code || 'CBA',
+        value: payload.organization_code || '',
         name: 'organization_code',
       },
     });

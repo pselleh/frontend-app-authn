@@ -75,6 +75,24 @@ describe('Payload validation', () => {
     expect(isValid).toBe(false);
   });
 
+  test('allows blank organization code', () => {
+    const payload = {
+      organization_code: '',
+    };
+    const errors = {};
+
+    const { isValid, fieldErrors } = isFormValid(
+      payload,
+      errors,
+      configurableFormFields,
+      fieldDescriptions,
+      formatMessage,
+    );
+
+    expect(fieldErrors.organization_code).toBe('');
+    expect(isValid).toBe(true);
+  });
+
   test('validates matching confirm password correctly', () => {
     const payload = {
       password: 'VelvetOrbit7392!Q',
