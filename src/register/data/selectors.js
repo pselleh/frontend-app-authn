@@ -17,7 +17,7 @@ const getBackendValidations = createSelector(
 
     if (Object.keys(registrationError).length > 0) {
       const fields = Object.keys(registrationError).filter(
-        (fieldName) => !(fieldName in ['errorCode', 'usernameSuggestions']),
+        fieldName => !['errorCode', 'usernameSuggestions'].includes(fieldName),
       );
 
       const validationDecisions = {};

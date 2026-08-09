@@ -730,6 +730,34 @@ describe('RegistrationPage', () => {
       expect(store.dispatch).toHaveBeenCalledWith(setUserPipelineDataLoaded(true));
     });
 
+    it('should display actionable backend password error instead of generic registration error', () => {
+      const passwordError = 'This password is too similar to your username.';
+
+      store = mockStore({
+        ...initialState,
+        register: {
+          ...initialState.register,
+          registrationError: {
+            errorCode: INTERNAL_SERVER_ERROR,
+            password: [
+              {
+                userMessage: passwordError,
+              },
+            ],
+          },
+        },
+      });
+
+      const { container } = render(routerWrapper(reduxWrapper(<RegistrationPage {...props} />)));
+
+      const passwordFeedback = container.querySelector('div[feedback-for="password"]');
+      expect(passwordFeedback).not.toBeNull();
+      expect(passwordFeedback.textContent).toContain(passwordError);
+
+      const validationErrors = container.querySelector('div#validation-errors');
+      expect(validationErrors).toBeNull();
+    });
+
     it('should display error message based on the error code returned by API', () => {
       store = mockStore({
         ...initialState,

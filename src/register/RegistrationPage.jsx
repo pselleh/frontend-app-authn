@@ -180,10 +180,13 @@ const RegistrationPage = (props) => {
   }, [backendValidations, registrationEmbedded]);
 
   useEffect(() => {
-    if (registrationErrorCode) {
+    const hasBackendFieldErrors = backendValidations
+      && Object.keys(backendValidations).length > 0;
+
+    if (registrationErrorCode && !hasBackendFieldErrors) {
       setErrorCode(prevState => ({ type: registrationErrorCode, count: prevState.count + 1 }));
     }
-  }, [registrationErrorCode]);
+  }, [registrationErrorCode, backendValidations]);
 
   useEffect(() => {
     if (registrationResult.success) {
