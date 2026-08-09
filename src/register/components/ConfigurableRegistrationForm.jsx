@@ -26,6 +26,7 @@ const ConfigurableRegistrationForm = (props) => {
   const {
     email,
     fieldDescriptions,
+    optionalFields,
     fieldErrors,
     formFields,
     setFieldErrors,
@@ -161,7 +162,12 @@ const ConfigurableRegistrationForm = (props) => {
     });
   }
 
-  if (flags.showConfigurableEdxFields || showCountryField) {
+  const showOptionalCountryField = Object.prototype.hasOwnProperty.call(
+    optionalFields,
+    'country',
+  );
+
+  if (flags.showConfigurableEdxFields || showCountryField || showOptionalCountryField) {
     formFieldDescriptions.push(
       <span key="country">
         <CountryField
@@ -172,6 +178,7 @@ const ConfigurableRegistrationForm = (props) => {
           handleErrorChange={handleErrorChange}
           onBlurHandler={handleOnBlur}
           onFocusHandler={handleOnFocus}
+          isRequired={showCountryField}
         />
       </span>,
     );
@@ -217,6 +224,7 @@ const ConfigurableRegistrationForm = (props) => {
 ConfigurableRegistrationForm.propTypes = {
   email: PropTypes.string.isRequired,
   fieldDescriptions: PropTypes.shape({}),
+  optionalFields: PropTypes.shape({}),
   fieldErrors: PropTypes.shape({
     country: PropTypes.string,
   }).isRequired,
@@ -235,6 +243,7 @@ ConfigurableRegistrationForm.propTypes = {
 
 ConfigurableRegistrationForm.defaultProps = {
   fieldDescriptions: {},
+  optionalFields: {},
   autoSubmitRegistrationForm: false,
 };
 

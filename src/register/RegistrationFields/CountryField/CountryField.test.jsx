@@ -205,4 +205,43 @@ describe('CountryField', () => {
       expect(feedbackElement.textContent).toEqual('country error message');
     });
   });
+
+  it('does not auto-select backend country when country is optional', () => {
+    const optionalProps = {
+      ...props,
+      isRequired: false,
+    };
+
+    render(reduxWrapper(<CountryField {...optionalProps} />));
+
+    expect(props.onChangeHandler).not.toHaveBeenCalledWith(
+      { target: { name: 'country' } },
+      expect.objectContaining({
+        countryCode: 'US',
+      }),
+    );
+  });
+
+  it('clears validation error when optional country is left blank', () => {
+    const optionalProps = {
+      ...props,
+      isRequired: false,
+    };
+
+    const { container } = render(
+      reduxWrapper(<CountryField {...optionalProps} />),
+    );
+
+    const countryInput = container.querySelector('input[name="country"]');
+
+    fireEvent.blur(countryInput, {
+      target: {
+        name: 'country',
+        value: '',
+      },
+    });
+
+    expect(props.handleErrorChange).toHaveBeenCalledWith('country', '');
+  });
+
 });

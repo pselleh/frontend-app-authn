@@ -28,6 +28,7 @@ const CountryField = (props) => {
     onChangeHandler,
     handleErrorChange,
     onFocusHandler,
+    isRequired,
   } = props;
   const { formatMessage } = useIntl();
   const dispatch = useDispatch();
@@ -41,7 +42,7 @@ const CountryField = (props) => {
   const backendCountryCode = useSelector(state => state.register.backendCountryCode);
 
   useEffect(() => {
-    if (backendCountryCode && backendCountryCode !== selectedCountry?.countryCode) {
+    if (isRequired && backendCountryCode && backendCountryCode !== selectedCountry?.countryCode) {
       let countryCode = '';
       let countryDisplayValue = '';
 
@@ -62,7 +63,7 @@ const CountryField = (props) => {
         { countryCode: '', displayValue: '' },
       );
     }
-  }, [backendCountryCode, countryList]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [backendCountryCode, countryList, isRequired]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleOnBlur = (event) => {
     // Do not run validations when drop-down arrow is clicked
@@ -71,6 +72,11 @@ const CountryField = (props) => {
     }
 
     const { value } = event.target;
+
+    if (!isRequired && !value.trim()) {
+      handleErrorChange('country', '');
+      return;
+    }
 
     const { error } = validateCountryField(
       value.trim(), countryList, formatMessage(messages['empty.country.field.error']), formatMessage(messages['invalid.country.field.error']),
@@ -139,6 +145,7 @@ CountryField.propTypes = {
     }),
   ).isRequired,
   errorMessage: PropTypes.string,
+  isRequired: PropTypes.bool,
   onChangeHandler: PropTypes.func.isRequired,
   handleErrorChange: PropTypes.func.isRequired,
   onFocusHandler: PropTypes.func.isRequired,
@@ -150,6 +157,7 @@ CountryField.propTypes = {
 
 CountryField.defaultProps = {
   errorMessage: null,
+  isRequired: true,
   selectedCountry: {
     value: '',
   },

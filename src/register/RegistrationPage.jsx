@@ -339,6 +339,7 @@ const RegistrationPage = (props) => {
                 setFormFields={setConfigurableFormFields}
                 autoSubmitRegistrationForm={autoSubmitRegForm}
                 fieldDescriptions={fieldDescriptions}
+                optionalFields={optionalFields}
               />
 
               <EmailField
