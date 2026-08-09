@@ -198,9 +198,38 @@ describe('RegistrationPage', () => {
     const emptyFieldValidation = {
       username: 'Username must be between 2 and 30 characters',
       email: 'Enter your email',
-      password: 'Password must be at least 10 characters long.',
+      password: 'Password must be at least 15 characters long.',
       country: 'Select your country or region of residence',
     };
+
+    it('should independently show and hide confirm password', () => {
+      const { getByLabelText, container } = render(
+        routerWrapper(reduxWrapper(<RegistrationPage {...props} />)),
+      );
+
+      const passwordInput = getByLabelText('Password');
+      const confirmPasswordInput = getByLabelText('Confirm Password');
+      const confirmPasswordButton = container.querySelector(
+        'button[name="confirmPasswordIcon"]',
+      );
+
+      expect(confirmPasswordButton).not.toBeNull();
+      expect(passwordInput.type).toBe('password');
+      expect(confirmPasswordInput.type).toBe('password');
+      expect(confirmPasswordButton.getAttribute('aria-label')).toBe('Show password');
+
+      fireEvent.click(confirmPasswordButton);
+
+      expect(confirmPasswordInput.type).toBe('text');
+      expect(passwordInput.type).toBe('password');
+      expect(confirmPasswordButton.getAttribute('aria-label')).toBe('Hide password');
+
+      fireEvent.click(confirmPasswordButton);
+
+      expect(confirmPasswordInput.type).toBe('password');
+      expect(passwordInput.type).toBe('password');
+      expect(confirmPasswordButton.getAttribute('aria-label')).toBe('Show password');
+    });
 
     // ******** test registration form submission ********
 

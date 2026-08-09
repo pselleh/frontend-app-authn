@@ -6,7 +6,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getConfig } from '@edx/frontend-platform';
 import { sendPageEvent, sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { Form, Spinner, StatefulButton } from '@openedx/paragon';
+import {
+  Form, Icon, IconButton, Spinner, StatefulButton,
+} from '@openedx/paragon';
+import { Visibility, VisibilityOff } from '@openedx/paragon/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
@@ -43,6 +46,7 @@ import {
 } from '../common-components';
 import { getThirdPartyAuthContext as getRegistrationDataFromBackend } from '../common-components/data/actions';
 import EnterpriseSSO from '../common-components/EnterpriseSSO';
+import commonMessages from '../common-components/messages';
 import ThirdPartyAuth from '../common-components/ThirdPartyAuth';
 import {
   COMPLETE_STATE, PENDING_STATE, REGISTER_PAGE,
@@ -57,6 +61,7 @@ import {
 const RegistrationPage = (props) => {
   const { formatMessage } = useIntl();
   const dispatch = useDispatch();
+  const [isConfirmPasswordHidden, setIsConfirmPasswordHidden] = useState(true);
 
   const registrationEmbedded = isHostAvailableInQueryParams();
   const platformName = getConfig().SITE_NAME;
@@ -392,12 +397,25 @@ const RegistrationPage = (props) => {
                     <Form.Control
                       as="input"
                       className="form-group__form-field"
-                      type="password"
+                      type={isConfirmPasswordHidden ? 'password' : 'text'}
                       name="confirm_password"
                       value={formFields.confirm_password || ''}
                       autoComplete="new-password"
                       aria-invalid={Boolean(errors.confirm_password)}
                       onChange={handleOnChange}
+                      trailingElement={(
+                        <IconButton
+                          name="confirmPasswordIcon"
+                          src={isConfirmPasswordHidden ? Visibility : VisibilityOff}
+                          iconAs={Icon}
+                          onClick={() => setIsConfirmPasswordHidden(value => !value)}
+                          size="sm"
+                          variant="secondary"
+                          alt={formatMessage(
+                            commonMessages[isConfirmPasswordHidden ? 'show.password' : 'hide.password'],
+                          )}
+                        />
+                      )}
                       floatingLabel={formatMessage(
                         messages['registration.confirm.password.label'],
                       )}
