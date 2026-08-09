@@ -32,6 +32,11 @@ const messages = defineMessages({
     defaultMessage: 'Password',
     description: 'Label that appears above password field',
   },
+  'registration.confirm.password.label': {
+    id: 'registration.confirm.password.label',
+    defaultMessage: 'Confirm Password',
+    description: 'Label that appears above confirm password field',
+  },
   'registration.country.label': {
     id: 'registration.country.label',
     defaultMessage: 'Country/Region',
@@ -105,6 +110,16 @@ const messages = defineMessages({
     id: 'empty.password.field.error',
     defaultMessage: 'Password criteria has not been met',
     description: 'Error message for empty password field',
+  },
+  'empty.confirm.password.field.error': {
+    id: 'empty.confirm.password.field.error',
+    defaultMessage: 'Confirm your password',
+    description: 'Error message for empty confirm password field',
+  },
+  'passwords.do.not.match': {
+    id: 'passwords.do.not.match',
+    defaultMessage: 'Passwords do not match',
+    description: 'Error message when password and confirm password do not match',
   },
   'empty.country.field.error': {
     id: 'empty.country.field.error',
