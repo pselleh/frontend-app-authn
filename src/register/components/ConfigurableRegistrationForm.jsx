@@ -32,6 +32,7 @@ const ConfigurableRegistrationForm = (props) => {
     setFieldErrors,
     setFormFields,
     autoSubmitRegistrationForm,
+    renderCountryField,
   } = props;
 
   /** The reason for adding the entry 'United States' is that Chrome browser aut-fill the form with the 'Unites
@@ -167,7 +168,10 @@ const ConfigurableRegistrationForm = (props) => {
     'country',
   );
 
-  if (flags.showConfigurableEdxFields || showCountryField || showOptionalCountryField) {
+  if (
+    renderCountryField
+    && (flags.showConfigurableEdxFields || showCountryField || showOptionalCountryField)
+  ) {
     formFieldDescriptions.push(
       <span key="country">
         <CountryField
@@ -224,7 +228,9 @@ const ConfigurableRegistrationForm = (props) => {
 ConfigurableRegistrationForm.propTypes = {
   email: PropTypes.string.isRequired,
   fieldDescriptions: PropTypes.shape({}),
-  optionalFields: PropTypes.shape({}),
+  optionalFields: PropTypes.shape({
+    fields: PropTypes.shape({}),
+  }),
   fieldErrors: PropTypes.shape({
     country: PropTypes.string,
   }).isRequired,
@@ -239,12 +245,14 @@ ConfigurableRegistrationForm.propTypes = {
   setFieldErrors: PropTypes.func.isRequired,
   setFormFields: PropTypes.func.isRequired,
   autoSubmitRegistrationForm: PropTypes.bool,
+  renderCountryField: PropTypes.bool,
 };
 
 ConfigurableRegistrationForm.defaultProps = {
   fieldDescriptions: {},
   optionalFields: {},
   autoSubmitRegistrationForm: false,
+  renderCountryField: true,
 };
 
 export default ConfigurableRegistrationForm;

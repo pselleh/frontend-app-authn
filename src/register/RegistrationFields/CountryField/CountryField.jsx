@@ -1,25 +1,21 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { useDispatch } from 'react-redux';
 
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { FormAutosuggest, FormAutosuggestOption, FormControlFeedback } from '@openedx/paragon';
+import { Form, FormControlFeedback } from '@openedx/paragon';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import validateCountryField, { COUNTRY_CODE_KEY, COUNTRY_DISPLAY_KEY } from './validator';
+import { COUNTRY_CODE_KEY, COUNTRY_DISPLAY_KEY } from './validator';
 import { clearRegistrationBackendError } from '../../data/actions';
 import messages from '../../messages';
 
 /**
- * Country field wrapper. It accepts following handlers
- * - handleChange for setting value change and
- * - handleErrorChange for setting error
+ * Country field wrapper.
  *
- * It is responsible for
- * - Auto populating country field if backendCountryCode is available in redux
- * - Performing country field validations
- * - clearing error on focus
- * - setting value on change and selection
+ * Country is rendered as a true select control. No country is selected
+ * automatically. United States is shown first, followed by the remaining
+ * countries alphabetically.
  */
 const CountryField = (props) => {
   const {
@@ -30,59 +26,31 @@ const CountryField = (props) => {
     onFocusHandler,
     isRequired,
   } = props;
+
   const { formatMessage } = useIntl();
   const dispatch = useDispatch();
 
-  const countryFieldValue = {
-    userProvidedText: selectedCountry.displayValue,
-    selectionValue: selectedCountry.displayValue,
-    selectionId: selectedCountry.countryCode,
+  const normalizedCountryList = [...countryList]
+    .filter(country => country[COUNTRY_CODE_KEY]?.toUpperCase() !== 'US')
+    .sort((a, b) => (
+      a[COUNTRY_DISPLAY_KEY].localeCompare(b[COUNTRY_DISPLAY_KEY])
+    ));
+
+  const unitedStates = countryList.find(
+    country => country[COUNTRY_CODE_KEY]?.toUpperCase() === 'US',
+  ) || {
+    [COUNTRY_CODE_KEY]: 'US',
+    [COUNTRY_DISPLAY_KEY]: 'United States',
   };
 
-  const backendCountryCode = useSelector(state => state.register.backendCountryCode);
-
-  useEffect(() => {
-    if (backendCountryCode && backendCountryCode !== selectedCountry?.countryCode) {
-      let countryCode = '';
-      let countryDisplayValue = '';
-
-      const countryVal = countryList.find(
-        (country) => (country[COUNTRY_CODE_KEY].toLowerCase() === backendCountryCode.toLowerCase()),
-      );
-      if (countryVal) {
-        countryCode = countryVal[COUNTRY_CODE_KEY];
-        countryDisplayValue = countryVal[COUNTRY_DISPLAY_KEY];
-      }
-      onChangeHandler(
-        { target: { name: 'country' } },
-        { countryCode, displayValue: countryDisplayValue },
-      );
-    } else if (!selectedCountry.displayValue) {
-      onChangeHandler(
-        { target: { name: 'country' } },
-        { countryCode: '', displayValue: '' },
-      );
-    }
-  }, [backendCountryCode, countryList, isRequired]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleOnBlur = (event) => {
-    // Do not run validations when drop-down arrow is clicked
-    if (event.relatedTarget && event.relatedTarget.className.includes('pgn__form-autosuggest__icon-button')) {
-      return;
-    }
-
-    const { value } = event.target;
-
-    if (!isRequired && !value.trim()) {
-      handleErrorChange('country', '');
-      return;
-    }
-
-    const { error } = validateCountryField(
-      value.trim(), countryList, formatMessage(messages['empty.country.field.error']), formatMessage(messages['invalid.country.field.error']),
-    );
-    handleErrorChange('country', error);
-  };
+  const orderedCountryList = [
+    {
+      ...unitedStates,
+      [COUNTRY_CODE_KEY]: 'US',
+      [COUNTRY_DISPLAY_KEY]: 'United States',
+    },
+    ...normalizedCountryList,
+  ];
 
   const handleOnFocus = (event) => {
     handleErrorChange('country', '');
@@ -90,50 +58,83 @@ const CountryField = (props) => {
     onFocusHandler(event);
   };
 
-  const handleOnChange = (value) => {
-    onChangeHandler({ target: { name: 'country' } }, { countryCode: value.selectionId, displayValue: value.userProvidedText });
-
-    // We have put this check because proviously we also had onSelected event handler and we call
-    // the onBlur on that event handler but now there is no such handler and we only have
-    // onChange so we check the is there is proper sectionId which only be
-    // proper one when we select it from dropdown's item otherwise its null.
-    if (value.selectionId !== '') {
-      handleOnBlur({ target: { name: 'country', value: value.userProvidedText } });
+  const handleOnBlur = (event) => {
+    if (!isRequired && !event.target.value) {
+      handleErrorChange('country', '');
+      return;
     }
+
+    if (isRequired && !event.target.value) {
+      handleErrorChange(
+        'country',
+        formatMessage(messages['empty.country.field.error']),
+      );
+      return;
+    }
+
+    handleErrorChange('country', '');
   };
 
-  const getCountryList = () => countryList.map((country) => (
-    <FormAutosuggestOption key={country[COUNTRY_DISPLAY_KEY]} id={country[COUNTRY_CODE_KEY]}>
-      {country[COUNTRY_DISPLAY_KEY]}
-    </FormAutosuggestOption>
-  ));
+  const handleOnChange = (event) => {
+    const countryCode = event.target.value;
+
+    if (!countryCode) {
+      onChangeHandler(
+        { target: { name: 'country' } },
+        { countryCode: '', displayValue: '' },
+      );
+      return;
+    }
+
+    const country = orderedCountryList.find(
+      item => item[COUNTRY_CODE_KEY] === countryCode,
+    );
+
+    onChangeHandler(
+      { target: { name: 'country' } },
+      {
+        countryCode,
+        displayValue: country ? country[COUNTRY_DISPLAY_KEY] : '',
+      },
+    );
+  };
 
   return (
-    <div className="mb-4">
-      <FormAutosuggest
-        floatingLabel={formatMessage(messages['registration.country.label'])}
-        aria-label="form autosuggest"
+    <Form.Group
+      controlId="country"
+      className={classNames({ 'form-field-error': props.errorMessage })}
+    >
+      <Form.Label>
+        {formatMessage(messages['registration.country.label'])}
+      </Form.Label>
+
+      <Form.Control
+        as="select"
         name="country"
-        value={countryFieldValue || {}}
-        className={classNames({ 'form-field-error': props.errorMessage })}
-        onFocus={(e) => handleOnFocus(e)}
-        onBlur={(e) => handleOnBlur(e)}
-        onChange={(value) => handleOnChange(value)}
+        value={selectedCountry.countryCode || ''}
+        onFocus={handleOnFocus}
+        onBlur={handleOnBlur}
+        onChange={handleOnChange}
+        aria-invalid={props.errorMessage ? 'true' : 'false'}
       >
-        {getCountryList()}
-      </FormAutosuggest>
-      {props.errorMessage !== '' && (
-        <FormControlFeedback
-          key="error"
-          className="form-text-size"
-          hasIcon={false}
-          feedback-for="country"
-          type="invalid"
-        >
+        <option value="">Select a country/region</option>
+
+        {orderedCountryList.map(country => (
+          <option
+            key={country[COUNTRY_CODE_KEY]}
+            value={country[COUNTRY_CODE_KEY]}
+          >
+            {country[COUNTRY_DISPLAY_KEY]}
+          </option>
+        ))}
+      </Form.Control>
+
+      {props.errorMessage && (
+        <FormControlFeedback type="invalid">
           {props.errorMessage}
         </FormControlFeedback>
       )}
-    </div>
+    </Form.Group>
   );
 };
 
@@ -159,7 +160,8 @@ CountryField.defaultProps = {
   errorMessage: null,
   isRequired: true,
   selectedCountry: {
-    value: '',
+    displayValue: '',
+    countryCode: '',
   },
 };
 

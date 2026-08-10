@@ -117,7 +117,7 @@ describe('ConfigurableRegistrationForm', () => {
       institutionLogin: false,
     };
     window.location = { search: '' };
-    getLocale.mockImplementationOnce(() => ('en-us'));
+    getLocale.mockImplementation(() => ('en-us'));
   });
 
   afterEach(() => {
@@ -125,12 +125,23 @@ describe('ConfigurableRegistrationForm', () => {
   });
 
   const populateRequiredFields = (getByLabelText, payload, isThirdPartyAuth = false) => {
-    fireEvent.change(getByLabelText('Full name'), { target: { value: payload.name, name: 'name' } });
+    const fullName = document.querySelector('input[name="name"]');
+    if (fullName) {
+      fireEvent.change(fullName, { target: { value: payload.name, name: 'name' } });
+    }
+
     fireEvent.change(getByLabelText('Public username'), { target: { value: payload.username, name: 'username' } });
     fireEvent.change(getByLabelText('Email'), { target: { value: payload.email, name: 'email' } });
 
-    fireEvent.change(getByLabelText('Country/Region'), { target: { value: payload.country, name: 'country' } });
-    fireEvent.blur(getByLabelText('Country/Region'), { target: { value: payload.country, name: 'country' } });
+    const countryCodes = {
+      Pakistan: 'PK',
+      Ukraine: 'UA',
+    };
+    const country = getByLabelText('Country/Region');
+    fireEvent.change(country, {
+      target: { value: countryCodes[payload.country] || payload.country, name: 'country' },
+    });
+    fireEvent.blur(country);
 
     if (!isThirdPartyAuth) {
       fireEvent.change(getByLabelText('Password'), { target: { value: payload.password, name: 'password' } });
@@ -161,6 +172,28 @@ describe('ConfigurableRegistrationForm', () => {
       )));
 
       expect(getByLabelText('Country/Region')).toBeTruthy();
+    });
+
+    it('should not render Country when renderCountryField is false', () => {
+      props = {
+        ...props,
+        optionalFields: {
+          fields: {
+            country: {
+              name: 'country',
+              error_message: '',
+            },
+          },
+          extended_profile: [],
+        },
+        renderCountryField: false,
+      };
+
+      const { queryByLabelText } = render(routerWrapper(reduxWrapper(
+        <ConfigurableRegistrationForm {...props} />,
+      )));
+
+      expect(queryByLabelText('Country/Region')).toBeNull();
     });
 
     it('should render fields returned by backend as field descriptions', () => {
@@ -246,6 +279,16 @@ describe('ConfigurableRegistrationForm', () => {
       jest.spyOn(global.Date, 'now').mockImplementation(() => 0);
       store = mockStore({
         ...initialState,
+        register: {
+          ...initialState.register,
+          registrationFormData: {
+            ...initialState.register.registrationFormData,
+            formFields: {
+              ...initialState.register.registrationFormData.formFields,
+              name: 'John Doe',
+            },
+          },
+        },
         commonComponents: {
           ...initialState.commonComponents,
           fieldDescriptions: {
@@ -259,7 +302,7 @@ describe('ConfigurableRegistrationForm', () => {
         name: 'John Doe',
         username: 'john_doe',
         email: 'john.doe@example.com',
-        password: 'password1',
+        password: 'VelvetOrbit7392!Q',
         country: 'Pakistan',
         honor_code: true,
         profession: 'Engineer',
@@ -308,7 +351,11 @@ describe('ConfigurableRegistrationForm', () => {
       fireEvent.click(submitButton);
 
       const professionErrorElement = container.querySelector('#profession-error');
-      const countryErrorElement = container.querySelector('div[feedback-for="country"]');
+      const countrySelect = container.querySelector('select[name="country"]');
+      const countryGroup = countrySelect.closest('.pgn__form-group');
+      const countryErrorElement = countryGroup.querySelector(
+        '.pgn__form-control-description.pgn__form-text-invalid',
+      );
       const confirmEmailErrorElement = container.querySelector('#confirm_email-error');
 
       expect(professionErrorElement.textContent).toEqual(professionError);
@@ -316,8 +363,8 @@ describe('ConfigurableRegistrationForm', () => {
       expect(confirmEmailErrorElement.textContent).toEqual(confirmEmailError);
     });
 
-    it('should show country field validation when country name is invalid', () => {
-      const invalidCountryError = 'Country must match with an option available in the dropdown.';
+    it('should show country field validation when required country is left unselected', () => {
+      const countryError = 'Select your country or region of residence';
 
       store = mockStore({
         ...initialState,
@@ -328,17 +375,19 @@ describe('ConfigurableRegistrationForm', () => {
           },
         },
       });
-      const { container } = render(routerWrapper(reduxWrapper(<RegistrationPage {...props} />)));
-      const countryInput = container.querySelector('input[name="country"]');
-      fireEvent.change(countryInput, { target: { value: 'Pak', name: 'country' } });
-      fireEvent.blur(countryInput, { target: { value: 'Pak', name: 'country' } });
+      const { getByLabelText, container } = render(
+        routerWrapper(reduxWrapper(<RegistrationPage {...props} />)),
+      );
+      const countrySelect = getByLabelText('Country/Region');
 
-      const submitButton = container.querySelector('button.btn-brand');
-      fireEvent.click(submitButton);
+      expect(countrySelect.value).toBe('');
+      fireEvent.blur(countrySelect);
 
-      const countryErrorElement = container.querySelector('div[feedback-for="country"]');
+      const countryErrorElement = container.querySelector(
+        '.pgn__form-control-description.pgn__form-text-invalid',
+      );
 
-      expect(countryErrorElement.textContent).toEqual(invalidCountryError);
+      expect(countryErrorElement.textContent).toEqual(countryError);
     });
 
     it('should show error if email and confirm email fields do not match', () => {

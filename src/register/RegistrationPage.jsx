@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { getConfig } from '@edx/frontend-platform';
 import { sendPageEvent, sendTrackEvent } from '@edx/frontend-platform/analytics';
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { getCountryList, getLocale, useIntl } from '@edx/frontend-platform/i18n';
 import {
   Form, Icon, IconButton, Spinner, StatefulButton,
 } from '@openedx/paragon';
@@ -34,6 +34,7 @@ import {
 } from './data/utils';
 import messages from './messages';
 import {
+  CountryField,
   EmailField,
   OrganizationCodeField,
   UsernameField,
@@ -98,6 +99,10 @@ const RegistrationPage = (props) => {
   const backendValidations = useSelector(getBackendValidations);
   const queryParams = useMemo(() => getAllPossibleQueryParams(), []);
   const tpaHint = useMemo(() => getTpaHint(), []);
+  const countryList = useMemo(
+    () => getCountryList(getLocale()).concat([{ code: 'US', name: 'United States' }]),
+    [],
+  );
 
   const [formFields, setFormFields] = useState({ ...backedUpFormData.formFields });
   const [configurableFormFields, setConfigurableFormFields] = useState({ ...backedUpFormData.configurableFormFields });
@@ -208,6 +213,20 @@ const RegistrationPage = (props) => {
     setFormFields(prevState => ({ ...prevState, [name]: value }));
   };
 
+  const handleCountryChange = (event, countryValue) => {
+    const { name } = event.target;
+
+    if (registrationError[name]) {
+      dispatch(clearRegistrationBackendError(name));
+    }
+
+    setErrors(prevErrors => ({ ...prevErrors, [name]: '' }));
+    setConfigurableFormFields(prevState => ({
+      ...prevState,
+      [name]: { ...countryValue },
+    }));
+  };
+
   const handleErrorChange = (fieldName, error) => {
     if (registrationEmbedded) {
       setTemporaryErrors(prevErrors => ({
@@ -226,6 +245,10 @@ const RegistrationPage = (props) => {
         [fieldName]: error,
       }));
     }
+  };
+
+  const handleCountryFocus = () => {
+    handleErrorChange('country', '');
   };
 
   const registerUser = () => {
@@ -340,6 +363,7 @@ const RegistrationPage = (props) => {
                 autoSubmitRegistrationForm={autoSubmitRegForm}
                 fieldDescriptions={fieldDescriptions}
                 optionalFields={optionalFields}
+                renderCountryField={false}
               />
 
               <EmailField
@@ -379,6 +403,20 @@ const RegistrationPage = (props) => {
                   messages['registration.organization.code.label'],
                 )}
               />
+
+              <CountryField
+                countryList={countryList}
+                selectedCountry={configurableFormFields.country || {
+                  countryCode: '',
+                  displayValue: '',
+                }}
+                errorMessage={errors.country || ''}
+                onChangeHandler={handleCountryChange}
+                handleErrorChange={handleErrorChange}
+                onFocusHandler={handleCountryFocus}
+                isRequired={Object.prototype.hasOwnProperty.call(fieldDescriptions, 'country')}
+              />
+
               {!currentProvider && (
                 <>
                   <PasswordField

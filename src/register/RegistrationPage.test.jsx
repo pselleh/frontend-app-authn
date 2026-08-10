@@ -176,8 +176,15 @@ describe('RegistrationPage', () => {
       },
     });
 
-    fireEvent.change(getByLabelText('Country/Region'), { target: { value: payload.country, name: 'country' } });
-    fireEvent.blur(getByLabelText('Country/Region'), { target: { value: payload.country, name: 'country' } });
+    const countryCodes = {
+      Pakistan: 'PK',
+      Ukraine: 'UA',
+    };
+    const country = getByLabelText('Country/Region');
+    const countryCode = countryCodes[payload.country] || payload.country;
+
+    fireEvent.change(country, { target: { value: countryCode, name: 'country' } });
+    fireEvent.blur(country, { target: { value: countryCode, name: 'country' } });
 
     if (!isThirdPartyAuth) {
       fireEvent.change(getByLabelText('Password'), { target: { value: payload.password, name: 'password' } });
@@ -199,8 +206,28 @@ describe('RegistrationPage', () => {
       username: 'Username must be between 2 and 30 characters',
       email: 'Enter your email',
       password: 'Password must be at least 15 characters long.',
-      country: 'Select your country or region of residence',
     };
+
+    it('should render Country immediately after Organization Code and before Password', () => {
+      const { getByLabelText } = render(
+        routerWrapper(reduxWrapper(<RegistrationPage {...props} />)),
+      );
+
+      const organizationCode = getByLabelText('Organization Code');
+      const country = getByLabelText('Country/Region');
+      const password = getByLabelText('Password');
+
+      const controls = Array.from(
+        organizationCode.closest('form').querySelectorAll('input, select'),
+      );
+
+      expect(controls.indexOf(country)).toBeGreaterThan(
+        controls.indexOf(organizationCode),
+      );
+      expect(controls.indexOf(country)).toBeLessThan(
+        controls.indexOf(password),
+      );
+    });
 
     it('should independently show and hide confirm password', () => {
       const { getByLabelText, container } = render(
@@ -853,9 +880,15 @@ describe('RegistrationPage', () => {
       fireEvent.blur(usernameInput, { target: { value: '', name: 'username' } });
       expect(container.querySelector('div[feedback-for="username"]')).toBeFalsy();
 
-      const countryInput = container.querySelector('input[name="country"]');
-      fireEvent.blur(countryInput, { target: { value: '', name: 'country' } });
-      expect(container.querySelector('div[feedback-for="country"]')).toBeFalsy();
+      const countrySelect = container.querySelector('select[name="country"]');
+      fireEvent.blur(countrySelect, { target: { value: '', name: 'country' } });
+
+      const countryGroup = countrySelect.closest('.pgn__form-group');
+      expect(
+        countryGroup.querySelector(
+          '.pgn__form-control-description.pgn__form-text-invalid',
+        ),
+      ).toBeFalsy();
     });
 
     it('should set errors in temporary state when validations are returned by registration api', () => {
