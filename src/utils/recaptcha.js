@@ -1,7 +1,4 @@
-import { getConfig } from '@edx/frontend-platform';
-
-const RECAPTCHA_SITE_KEY =
-  getConfig().RECAPTCHA_SITE_KEY;
+import { RECAPTCHA_SITE_KEY } from '../config/recaptcha';
 
 export const RECAPTCHA_ACTIONS = Object.freeze({
   LOGIN: 'LOGIN',

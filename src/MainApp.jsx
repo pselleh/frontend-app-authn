@@ -12,6 +12,7 @@ import {
   UnAuthOnlyRoute,
   Zendesk,
 } from './common-components';
+import { RECAPTCHA_SITE_KEY } from './config/recaptcha';
 import configureStore from './data/configureStore';
 import {
   AUTHN_PROGRESSIVE_PROFILING,
@@ -36,9 +37,6 @@ import './styles.scss';
 
 registerIcons();
 
-const RECAPTCHA_SITE_KEY =
-  '6Lejtm4tAAAAAF91ZsfhhSR5nhgaXkDrjVteP1BO';
-
 const buildFaviconUrl = () => {
   const configured = getConfig().FAVICON_URL;
   if (configured) {
@@ -53,10 +51,6 @@ const buildFaviconUrl = () => {
 };
 
 const MainApp = () => {
-  // TEMPORARY: Verify runtime configuration
-  console.log('MFE config:', getConfig());
-  console.log('RECAPTCHA_SITE_KEY:', getConfig().RECAPTCHA_SITE_KEY);
-
   return (
     <AppProvider store={configureStore()}>
       <CbaAuthnChrome>
