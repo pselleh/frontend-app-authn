@@ -150,6 +150,56 @@ describe('Payload validation', () => {
     expect(isValid).toBe(false);
   });
 
+  test('rejects registration when required terms are not accepted', () => {
+    const payload = {};
+    const errors = {};
+    const termsFields = {
+      terms_of_service: false,
+    };
+    const termsDescriptions = {
+      terms_of_service: {
+        error_message: 'backend terms error',
+      },
+    };
+
+    const { isValid, fieldErrors } = isFormValid(
+      payload,
+      errors,
+      termsFields,
+      termsDescriptions,
+      formatMessage,
+    );
+
+    expect(isValid).toBe(false);
+    expect(fieldErrors.terms_of_service).toBe(
+      'You must agree to the terms and policies before creating an account.',
+    );
+  });
+
+  test('accepts required terms when checkbox is checked', () => {
+    const payload = {};
+    const errors = {};
+    const termsFields = {
+      terms_of_service: true,
+    };
+    const termsDescriptions = {
+      terms_of_service: {
+        error_message: 'backend terms error',
+      },
+    };
+
+    const { isValid, fieldErrors } = isFormValid(
+      payload,
+      errors,
+      termsFields,
+      termsDescriptions,
+      formatMessage,
+    );
+
+    expect(isValid).toBe(true);
+    expect(fieldErrors.terms_of_service).toBeUndefined();
+  });
+
   test('removes confirm password from prepared registration payload', () => {
     const payload = prepareRegistrationPayload(
       {

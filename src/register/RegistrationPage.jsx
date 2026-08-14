@@ -37,6 +37,7 @@ import {
   CountryField,
   EmailField,
   OrganizationCodeField,
+  TermsOfService,
   UsernameField,
 } from './RegistrationFields';
 import {
@@ -305,6 +306,18 @@ const RegistrationPage = (props) => {
     }
   }, [autoSubmitRegForm, userPipelineDataLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const redirectToProgressiveProfilingPage = (
+    getConfig().ENABLE_PROGRESSIVE_PROFILING_ON_AUTHN
+    && !!Object.keys(optionalFields.fields).length
+  );
+
+  const showActivationNotice = (
+    registrationResult.success
+    && !currentProvider
+    && !registrationEmbedded
+    && !redirectToProgressiveProfilingPage
+  );
+
   const renderForm = () => {
     if (institutionLogin) {
       return (
@@ -319,23 +332,40 @@ const RegistrationPage = (props) => {
         <Helmet>
           <title>{formatMessage(messages['register.page.title'], { siteName: getConfig().SITE_NAME })}</title>
         </Helmet>
-        <RedirectLogistration
-          host={host}
-          authenticatedUser={registrationResult.authenticatedUser}
-          success={registrationResult.success}
-          redirectUrl={registrationResult.redirectUrl}
-          finishAuthUrl={finishAuthUrl}
-          optionalFields={optionalFields}
-          registrationEmbedded={registrationEmbedded}
-          redirectToProgressiveProfilingPage={
-            getConfig().ENABLE_PROGRESSIVE_PROFILING_ON_AUTHN && !!Object.keys(optionalFields.fields).length
-          }
-        />
-        {autoSubmitRegForm && !errorCode.type ? (
+        {!showActivationNotice && (
+          <RedirectLogistration
+            host={host}
+            authenticatedUser={registrationResult.authenticatedUser}
+            success={registrationResult.success}
+            redirectUrl={registrationResult.redirectUrl}
+            finishAuthUrl={finishAuthUrl}
+            optionalFields={optionalFields}
+            registrationEmbedded={registrationEmbedded}
+            redirectToProgressiveProfilingPage={redirectToProgressiveProfilingPage}
+          />
+        )}
+        {showActivationNotice && (
+          <div
+            id="registration-activation-notice"
+            className="mw-xs mt-5 text-center"
+            role="status"
+          >
+            <h2>Check your email to activate account</h2>
+            <p>
+              We sent you an activation email. Check your email and activate
+              your account before signing in.
+            </p>
+            <p>
+              You will not be able to sign in until your account has been activated.
+            </p>
+          </div>
+        )}
+        {!showActivationNotice && autoSubmitRegForm && !errorCode.type && (
           <div className="mw-xs mt-5 text-center">
             <Spinner animation="border" variant="primary" id="tpa-spinner" />
           </div>
-        ) : (
+        )}
+        {!showActivationNotice && !(autoSubmitRegForm && !errorCode.type) && (
           <div
             className={classNames(
               'mw-xs mt-3',
@@ -474,6 +504,23 @@ const RegistrationPage = (props) => {
                     )}
                   </Form.Group>
                 </>
+              )}
+
+              {Object.prototype.hasOwnProperty.call(fieldDescriptions, 'terms_of_service') && (
+                <TermsOfService
+                  value={configurableFormFields.terms_of_service}
+                  onChangeHandler={(event) => {
+                    setConfigurableFormFields(prevState => ({
+                      ...prevState,
+                      terms_of_service: event.target.checked,
+                    }));
+                    setErrors(prevErrors => ({
+                      ...prevErrors,
+                      terms_of_service: '',
+                    }));
+                  }}
+                  errorMessage={errors.terms_of_service}
+                />
               )}
 
               <StatefulButton

@@ -606,7 +606,7 @@ describe('RegistrationPage', () => {
       expect(document.cookie).toMatch(`${getConfig().USER_RETENTION_COOKIE_NAME}=true`);
     });
 
-    it('should redirect to url returned in registration result after successful account creation', () => {
+    it('should show activation notice after successful standard account creation', () => {
       const dashboardURL = 'https://test.com/testing-dashboard/';
       store = mockStore({
         ...initialState,
@@ -618,17 +618,36 @@ describe('RegistrationPage', () => {
           },
         },
       });
+
       delete window.location;
       window.location = { href: getConfig().BASE_URL };
-      render(routerWrapper(reduxWrapper(<RegistrationPage {...props} />)));
-      expect(window.location.href).toBe(dashboardURL);
+
+      const { container, getByText } = render(
+        routerWrapper(reduxWrapper(<RegistrationPage {...props} />)),
+      );
+
+      expect(
+        getByText('Check your email to activate account'),
+      ).toBeTruthy();
+
+      expect(
+        container.querySelector('#registration-activation-notice'),
+      ).toBeTruthy();
+
+      expect(
+        container.querySelector('#registration-form'),
+      ).toBeFalsy();
+
+      expect(window.location.href).toBe(getConfig().BASE_URL);
     });
 
-    it('should redirect to dashboard if features flags are configured but no optional fields are configured', () => {
+    it('should show activation notice when progressive profiling is enabled but no optional fields are configured', () => {
       mergeConfig({
         ENABLE_PROGRESSIVE_PROFILING_ON_AUTHN: true,
       });
+
       const dashboardUrl = 'https://test.com/testing-dashboard/';
+
       store = mockStore({
         ...initialState,
         register: {
@@ -645,10 +664,27 @@ describe('RegistrationPage', () => {
           },
         },
       });
+
       delete window.location;
       window.location = { href: getConfig().BASE_URL };
-      render(routerWrapper(reduxWrapper(<RegistrationPage {...props} />)));
-      expect(window.location.href).toBe(dashboardUrl);
+
+      const { container, getByText } = render(
+        routerWrapper(reduxWrapper(<RegistrationPage {...props} />)),
+      );
+
+      expect(
+        getByText('Check your email to activate account'),
+      ).toBeTruthy();
+
+      expect(
+        container.querySelector('#registration-activation-notice'),
+      ).toBeTruthy();
+
+      expect(window.location.href).toBe(getConfig().BASE_URL);
+
+      mergeConfig({
+        ENABLE_PROGRESSIVE_PROFILING_ON_AUTHN: false,
+      });
     });
 
     it('should redirect to progressive profiling page if optional fields are configured', () => {

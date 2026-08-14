@@ -2,7 +2,16 @@ import { getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient, getHttpClient } from '@edx/frontend-platform/auth';
 import * as QueryString from 'query-string';
 
+import {
+  getRecaptchaToken,
+  RECAPTCHA_ACTIONS,
+} from '../../utils/recaptcha';
+
 export async function registerRequest(registrationInformation) {
+  const recaptchaToken = await getRecaptchaToken(
+    RECAPTCHA_ACTIONS.REGISTER,
+  );
+
   const requestConfig = {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     isPublic: true,
@@ -11,7 +20,11 @@ export async function registerRequest(registrationInformation) {
   const { data } = await getAuthenticatedHttpClient()
     .post(
       `${getConfig().LMS_BASE_URL}/api/user/v2/account/registration/`,
-      QueryString.stringify(registrationInformation),
+      QueryString.stringify({
+        ...registrationInformation,
+        recaptcha_token: recaptchaToken,
+        recaptcha_action: RECAPTCHA_ACTIONS.REGISTER,
+      }),
       requestConfig,
     )
     .catch((e) => {

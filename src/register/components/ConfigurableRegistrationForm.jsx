@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { FormFieldRenderer } from '../../field-renderer';
 import { FIELDS } from '../data/constants';
 import messages from '../messages';
-import { CountryField, HonorCode, TermsOfService } from '../RegistrationFields';
+import { CountryField, HonorCode } from '../RegistrationFields';
 
 /**
  * Fields on registration page that are not the default required fields (name, email, username, password).
@@ -133,17 +133,6 @@ const ConfigurableRegistrationForm = (props) => {
               </span>,
             );
           }
-          break;
-        case FIELDS.TERMS_OF_SERVICE:
-          honorCode.push(
-            <span key={fieldData.name}>
-              <TermsOfService
-                value={formFields[fieldData.name]}
-                onChangeHandler={handleOnChange}
-                errorMessage={fieldErrors[fieldData.name]}
-              />
-            </span>,
-          );
           break;
         default:
           formFieldDescriptions.push(
