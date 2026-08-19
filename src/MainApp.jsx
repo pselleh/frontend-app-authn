@@ -16,6 +16,7 @@ import { RECAPTCHA_SITE_KEY } from './config/recaptcha';
 import configureStore from './data/configureStore';
 import {
   AUTHN_PROGRESSIVE_PROFILING,
+  LOGGED_OUT_PAGE,
   LOGIN_PAGE,
   PAGE_NOT_FOUND,
   PASSWORD_RESET_CONFIRM,
@@ -26,6 +27,7 @@ import {
 } from './data/constants';
 import { updatePathWithQueryParams } from './data/utils';
 import { ForgotPasswordPage } from './forgot-password';
+import { LoggedOutPage } from './logged-out';
 import Logistration from './logistration/Logistration';
 import { ProgressiveProfiling } from './progressive-profiling';
 import { RecommendationsPage } from './recommendations';
@@ -86,6 +88,11 @@ const MainApp = () => {
                 <RegistrationPage />
               </EmbeddedRegistrationRoute>
             }
+          />
+
+          <Route
+            path={LOGGED_OUT_PAGE}
+            element={<LoggedOutPage />}
           />
 
           <Route
