@@ -10,6 +10,7 @@ jest.mock('@edx/frontend-platform', () => ({
 }));
 
 const LMS_BASE_URL = 'https://learn.centerforbusinessacceleration.com';
+const MARKETING_SITE_BASE_URL = 'https://centerforbusinessacceleration.com';
 const STUDIO_BASE_URL = 'https://studio.centerforbusinessacceleration.com';
 
 const setLocationSearch = (search = '') => {
@@ -21,6 +22,7 @@ describe('LoggedOutPage', () => {
   beforeEach(() => {
     getConfig.mockReturnValue({
       LMS_BASE_URL,
+      MARKETING_SITE_BASE_URL,
       STUDIO_BASE_URL,
     });
 
@@ -38,7 +40,7 @@ describe('LoggedOutPage', () => {
       .toBe(`${LMS_BASE_URL}/login`);
 
     expect(screen.getByTestId('logged-out-back').getAttribute('href'))
-      .toBe(LMS_BASE_URL);
+      .toBe(MARKETING_SITE_BASE_URL);
 
     expect(screen.getByTestId('logged-out-sign-in').textContent)
       .toBe('Sign in again');
@@ -92,7 +94,7 @@ describe('LoggedOutPage', () => {
       .toBe(`${LMS_BASE_URL}/login`);
 
     expect(screen.getByTestId('logged-out-back').getAttribute('href'))
-      .toBe(LMS_BASE_URL);
+      .toBe(MARKETING_SITE_BASE_URL);
   });
 
   it('rejects a deceptive Studio hostname', () => {
@@ -106,7 +108,7 @@ describe('LoggedOutPage', () => {
       .toBe(`${LMS_BASE_URL}/login`);
 
     expect(screen.getByTestId('logged-out-back').getAttribute('href'))
-      .toBe(LMS_BASE_URL);
+      .toBe(MARKETING_SITE_BASE_URL);
   });
 
   it('rejects a relative next URL', () => {
@@ -118,7 +120,7 @@ describe('LoggedOutPage', () => {
       .toBe(`${LMS_BASE_URL}/login`);
 
     expect(screen.getByTestId('logged-out-back').getAttribute('href'))
-      .toBe(LMS_BASE_URL);
+      .toBe(MARKETING_SITE_BASE_URL);
   });
 
   it('rejects a malformed next URL', () => {
@@ -130,6 +132,6 @@ describe('LoggedOutPage', () => {
       .toBe(`${LMS_BASE_URL}/login`);
 
     expect(screen.getByTestId('logged-out-back').getAttribute('href'))
-      .toBe(LMS_BASE_URL);
+      .toBe(MARKETING_SITE_BASE_URL);
   });
 });

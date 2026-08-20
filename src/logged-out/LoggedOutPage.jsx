@@ -37,6 +37,7 @@ const LoggedOutPage = () => {
   const config = getConfig();
 
   const lmsBaseUrl = normalizeUrl(config.LMS_BASE_URL);
+  const marketingSiteBaseUrl = normalizeUrl(config.MARKETING_SITE_BASE_URL);
   const nextUrl = getSafeNextUrl();
 
   /*
@@ -47,7 +48,7 @@ const LoggedOutPage = () => {
    * the LMS/Authn MFE and preserve the Studio destination.
    */
   const signInUrl = nextUrl || `${lmsBaseUrl}/login`;
-  const backUrl = nextUrl || lmsBaseUrl;
+  const backUrl = nextUrl || marketingSiteBaseUrl || lmsBaseUrl;
 
   const returningToStudio = Boolean(nextUrl);
 
