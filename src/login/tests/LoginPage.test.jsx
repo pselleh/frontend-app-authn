@@ -13,6 +13,10 @@ import configureStore from 'redux-mock-store';
 import { COMPLETE_STATE, LOGIN_PAGE, PENDING_STATE } from '../../data/constants';
 import { backupLoginFormBegin, dismissPasswordResetBanner, loginRequest } from '../data/actions';
 import { INTERNAL_SERVER_ERROR } from '../data/constants';
+import {
+  getRecaptchaToken,
+  RECAPTCHA_ACTIONS,
+} from '../../utils/recaptcha';
 import LoginPage from '../LoginPage';
 
 jest.mock('@edx/frontend-platform/analytics', () => ({
@@ -21,6 +25,11 @@ jest.mock('@edx/frontend-platform/analytics', () => ({
 }));
 jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthService: jest.fn(),
+}));
+
+jest.mock('../../utils/recaptcha', () => ({
+  ...jest.requireActual('../../utils/recaptcha'),
+  getRecaptchaToken: jest.fn(),
 }));
 
 const mockStore = configureStore();
@@ -81,6 +90,7 @@ describe('LoginPage', () => {
   };
 
   beforeEach(() => {
+    getRecaptchaToken.mockResolvedValue('test-login-token');
     store = mockStore(initialState);
     props = {
       loginRequest: jest.fn(),
@@ -91,7 +101,7 @@ describe('LoginPage', () => {
 
   // ******** test login form submission ********
 
-  it('should submit form for valid input', () => {
+  it('should submit form for valid input', async () => {
     store.dispatch = jest.fn(store.dispatch);
 
     render(reduxWrapper(<LoginPage {...props} />));
@@ -110,7 +120,17 @@ describe('LoginPage', () => {
       { selector: '.btn-brand' },
     ));
 
-    expect(store.dispatch).toHaveBeenCalledWith(loginRequest({ email_or_username: 'test', password: 'test-password' }));
+    await waitFor(() => {
+      expect(getRecaptchaToken).toHaveBeenCalledWith(
+        RECAPTCHA_ACTIONS.LOGIN,
+      );
+      expect(store.dispatch).toHaveBeenCalledWith(loginRequest({
+        email_or_username: 'test',
+        password: 'test-password',
+        recaptcha_token: 'test-login-token',
+        recaptcha_action: RECAPTCHA_ACTIONS.LOGIN,
+      }));
+    });
   });
 
   it('should not dispatch loginRequest on empty form submission', () => {
@@ -231,7 +251,7 @@ describe('LoginPage', () => {
 
   it('should match default button state', () => {
     render(reduxWrapper(<LoginPage {...props} />));
-    expect(screen.getByText('Sign in')).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeDefined();
   });
 
   it('should match pending button state', () => {
@@ -254,9 +274,9 @@ describe('LoginPage', () => {
     render(reduxWrapper(<LoginPage {...props} />));
 
     expect(screen.getByText(
-      'Forgot password',
+      'Forgot your password?',
       { selector: '#forgot-password' },
-    ).textContent).toEqual('Forgot password');
+    ).textContent).toEqual('Forgot your password?');
   });
 
   it('should show single sign on provider button', () => {
@@ -786,7 +806,7 @@ describe('LoginPage', () => {
   it('should send track event when forgot password link is clicked', () => {
     render(reduxWrapper(<LoginPage {...props} />));
     fireEvent.click(screen.getByText(
-      'Forgot password',
+      'Forgot your password?',
       { selector: '#forgot-password' },
     ));
 
