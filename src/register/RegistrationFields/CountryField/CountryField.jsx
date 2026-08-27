@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux';
 
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { Form, FormControlFeedback } from '@openedx/paragon';
-import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { COUNTRY_CODE_KEY, COUNTRY_DISPLAY_KEY } from './validator';
@@ -102,7 +101,7 @@ const CountryField = (props) => {
   return (
     <Form.Group
       controlId="country"
-      className={classNames({ 'form-field-error': props.errorMessage })}
+      isInvalid={Boolean(props.errorMessage)}
     >
       <Form.Label>
         {formatMessage(messages['registration.country.label'])}

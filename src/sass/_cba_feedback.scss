@@ -1,0 +1,234 @@
+// Shared CBA Auth alerts, loading, and responsive QA
+
+body.cba-auth-page,
+.cba-auth {
+  // Danger / lockout / rate-limit / validation failures
+  .alert-danger,
+  .pgn__alert-danger {
+    background-color: rgba(195, 31, 46, 0.06) !important;
+    border: 1px solid rgba(195, 31, 46, 0.28) !important;
+    border-radius: var(--cba-radius-field) !important;
+    color: var(--cba-red) !important;
+    font-family: var(--cba-font);
+    font-size: 0.9rem;
+    line-height: 1.5;
+
+    .alert-heading,
+    .pgn__alert-heading {
+      color: var(--cba-red) !important;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    a,
+    .alert-link,
+    .pgn__alert-link {
+      color: var(--cba-red) !important;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+
+      &:hover {
+        color: var(--cba-red-hover) !important;
+      }
+    }
+
+    svg,
+    .pgn__icon {
+      color: var(--cba-red) !important;
+      fill: currentColor;
+    }
+
+    p {
+      margin-bottom: 0.5rem;
+      color: var(--cba-red) !important;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  // Success / enumeration-safe “check your email” states
+  .alert-success,
+  .pgn__alert-success {
+    background-color: rgba(18, 42, 77, 0.06) !important;
+    border: 1px solid rgba(18, 42, 77, 0.2) !important;
+    border-radius: var(--cba-radius-field) !important;
+    color: var(--cba-navy) !important;
+    font-family: var(--cba-font);
+    font-size: 0.9rem;
+
+    .alert-heading,
+    .pgn__alert-heading {
+      color: var(--cba-navy) !important;
+      font-weight: 700;
+    }
+
+    a,
+    .alert-link {
+      color: var(--cba-navy) !important;
+      font-weight: 600;
+      text-decoration: underline;
+
+      &:hover {
+        color: var(--cba-red) !important;
+      }
+    }
+
+    svg,
+    .pgn__icon {
+      color: var(--cba-navy) !important;
+    }
+  }
+
+  // Loading / pending
+  .spinner-border,
+  .spinner-border-sm {
+    color: var(--cba-navy) !important;
+    border-right-color: transparent !important;
+  }
+
+  // Invalid field feedback — always red
+  .invalid-feedback,
+  .pgn__form-control-description.is-invalid,
+  .pgn__form-text-invalid,
+  .form-field-error .invalid-feedback,
+  .form-field-error .pgn__form-text-invalid {
+    color: var(--cba-red) !important;
+    font-size: 0.8rem;
+  }
+
+  .is-invalid > .form-control,
+  .is-invalid .form-control,
+  .form-control.is-invalid,
+  .form-field-error .form-control {
+    border-color: var(--cba-red) !important;
+    background-color: var(--field-bg, var(--cba-white)) !important;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(195, 31, 46, 0.15) !important;
+    }
+  }
+}
+
+// Responsive QA — kill Open edX forced min-widths on auth surfaces
+body.cba-auth-page {
+  .main-content,
+  .welcome-page-content,
+  .tpa-skeleton,
+  .mw-xs {
+    min-width: 0 !important;
+    max-width: 100%;
+  }
+
+  .content {
+    width: 100% !important;
+    max-width: 100%;
+    margin-top: 1rem !important;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .layout {
+    flex-wrap: wrap;
+  }
+
+  #controlled-tab {
+    .nav {
+      flex-wrap: wrap;
+      row-gap: 0.25rem;
+    }
+
+    .nav-item .nav-link {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+@media (max-width: 991px) {
+  body.cba-auth-page {
+    // Prefer form-first on tablet/mobile; side marketing panel stacks above
+    .layout {
+      flex-direction: column;
+    }
+
+    .layout > .w-50,
+    .layout > div.d-flex.w-50 {
+      width: 100% !important;
+      max-height: 10rem;
+      overflow: hidden;
+    }
+
+    .content {
+      width: 100% !important;
+      margin-top: 0 !important;
+    }
+
+    .logo,
+    .logo-small {
+      margin-top: 1rem;
+      margin-left: 1rem;
+      width: 56px;
+    }
+
+    .display-2 {
+      font-size: 1.5rem !important;
+      line-height: 1.25 !important;
+      margin: 1rem !important;
+      max-width: 100% !important;
+    }
+  }
+}
+
+@media (max-width: 575px) {
+  body.cba-auth-page {
+    .cba-auth-card {
+      padding: 1.35rem 1rem;
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+      box-shadow: none;
+      max-width: 100%;
+    }
+
+    .cba-auth-card__title {
+      font-size: 1.4rem;
+    }
+
+    .cba-auth-card__lead {
+      font-size: 0.95rem;
+    }
+
+    .main-content {
+      padding: 1rem 0 2.5rem !important;
+    }
+
+    .btn-brand {
+      font-size: 0.85rem !important;
+      padding: 0.85rem 1rem !important;
+    }
+
+    // Password requirements tooltip shouldn't overflow viewport
+    #password-requirement-top,
+    #password-requirement-bottom {
+      max-width: calc(100vw - 2rem);
+    }
+  }
+}
+
+// Prefer readable text at ~200% zoom / narrow content width
+@media (max-width: 420px), (max-height: 500px) {
+  body.cba-auth-page {
+    .cba-auth-card__title {
+      font-size: 1.25rem;
+    }
+
+    .form-control,
+    .pgn__form-control-decorator-group .form-control {
+      font-size: 16px !important; // avoid iOS zoom-on-focus
+    }
+  }
+}

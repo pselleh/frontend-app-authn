@@ -23,21 +23,21 @@
   }
 
   .alert-link  {
-    color: var(--pgn-color-primary-base) !important;
+    color: var(--cba-navy, var(--pgn-color-primary-base)) !important;
 
     &:hover {
       text-decoration: underline;
-      color: var(--pgn-color-info-700) !important;
+      color: var(--cba-red, var(--pgn-color-info-700)) !important;
     }
   }
 }
 
 .email-suggestion-alert-warning {
-  color: var(--pgn-color-info-500) !important;
+  color: var(--cba-navy, var(--pgn-color-info-500)) !important;
 
   &:hover {
     text-decoration: underline;
-    color: var(--pgn-color-info-700) !important;
+    color: var(--cba-red, var(--pgn-color-info-700)) !important;
   }
 }
 
@@ -49,6 +49,42 @@
   margin-left: 3px;
 }
 
+#terms-of-service {
+  margin-top: 0.35rem;
+
+  .pgn__form-checkbox {
+    align-items: flex-start;
+  }
+
+  .pgn__form-label,
+  .form-field--checkbox .pgn__form-label {
+    display: inline;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-secondary, var(--cba-gray));
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+    hyphens: none;
+  }
+
+  .cba-tos-link,
+  a {
+    display: inline;
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
+    color: var(--cba-navy) !important;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: var(--cba-red) !important;
+    }
+  }
+}
+
 .username-suggestions--chip {
   padding: 1px 0.5rem;
   margin: 0.25rem;
@@ -56,7 +92,7 @@
   line-height: 24px;
   font-size: 12px;
   font-weight: normal;
-  color: var(--pgn-color-primary-700);
+  color: var(--cba-navy, var(--pgn-color-primary-700));
 }
 
 .username-suggestion--label {
@@ -106,10 +142,159 @@
   }
 }
 
-.form-field-error {
-  border: 1px solid var(--danger-300, #CA3A2F) !important;
+// Country (and any field) error state: border only on the control, not the group
+.form-field-error .form-control,
+.is-invalid > .form-control,
+.form-control.is-invalid {
+  border-color: var(--cba-red, var(--danger-300, #CA3A2F)) !important;
+}
 
-  input {
-    border: none;
+// Register — same CBA card language as Login
+.cba-auth-card--register {
+  max-width: 32rem;
+}
+
+.cba-auth-register {
+  width: 100%;
+
+  .form-group,
+  .pgn__form-group {
+    margin-bottom: 1.1rem;
+  }
+
+  .form-control,
+  .pgn__form-control-decorator-group .form-control,
+  .form-group__form-field {
+    border-radius: var(--cba-radius-field) !important;
+    border: 1px solid var(--border-color, var(--cba-line)) !important;
+    background-color: var(--field-bg, var(--cba-white)) !important;
+    color: var(--field-text, var(--cba-navy)) !important;
+    font-family: var(--cba-font);
+    font-size: 1rem !important;
+    min-height: 2.85rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:focus {
+      border-color: var(--cba-navy) !important;
+      box-shadow: var(--cba-focus-ring) !important;
+    }
+  }
+
+  .is-invalid > .form-control,
+  .is-invalid .form-control,
+  .form-control.is-invalid,
+  .form-field-error .form-control {
+    border-color: var(--cba-red, var(--danger-300, #CA3A2F)) !important;
+
+    &:focus {
+      border-color: var(--cba-red, var(--danger-300, #CA3A2F)) !important;
+      box-shadow: 0 0 0 3px rgba(195, 31, 46, 0.15) !important;
+    }
+  }
+
+  .pgn__form-label,
+  label {
+    color: var(--text-primary, var(--cba-navy)) !important;
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+
+  .pgn__form-text,
+  .form-text,
+  .pgn-form-text-default {
+    color: var(--text-secondary, var(--cba-gray)) !important;
+    font-size: 0.8rem;
+  }
+
+  .btn-brand,
+  #register-user.btn-brand,
+  .register-button.btn-brand {
+    width: 100%;
+    min-width: 0 !important;
+    background-color: var(--cba-red) !important;
+    border-color: var(--cba-red) !important;
+    color: var(--cba-white) !important;
+    border-radius: var(--cba-radius-field) !important;
+    font-family: var(--cba-font);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.8rem 1.25rem;
+    height: auto;
+    box-shadow: none !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
+
+    &:hover,
+    &:focus {
+      background-color: var(--cba-red-hover) !important;
+      border-color: var(--cba-red-hover) !important;
+      color: var(--cba-white) !important;
+    }
+
+    &:disabled,
+    &.disabled {
+      opacity: 0.65;
+    }
+  }
+
+  .cba-auth-card__footer {
+    text-align: center;
+    margin: 1.25rem 0 0.5rem;
+    font-size: 0.95rem;
+    color: var(--cba-gray);
+
+    a {
+      color: var(--cba-navy);
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+
+      &:hover {
+        color: var(--cba-red);
+      }
+    }
+  }
+
+  .form-field--checkbox .pgn__form-label,
+  .pgn__form-checkbox-label {
+    color: var(--text-primary, var(--cba-navy)) !important;
+    font-weight: 500;
+  }
+
+  .alert {
+    border-radius: var(--cba-radius-field);
+    font-size: 0.9rem;
+  }
+
+  @media (min-width: 576px) {
+    #registration-form {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      column-gap: 0.8rem;
+    }
+
+    #registration-form > * {
+      width: 100%;
+    }
+
+    #registration-form > span:has(input[name="first_name"]),
+    #registration-form > .pgn__form-group:has(input[name="first_name"]),
+    #registration-form > span:has(input[name="last_name"]),
+    #registration-form > .pgn__form-group:has(input[name="last_name"]) {
+      width: calc(50% - 0.4rem);
+    }
+  }
+}
+
+.cba-auth-card--notice {
+  max-width: 28rem;
+  margin: 1.5rem auto 3rem;
+  text-align: left;
+
+  .cba-auth-card__footer {
+    margin-top: 0;
   }
 }

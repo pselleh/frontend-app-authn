@@ -8,12 +8,9 @@ import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 
 import Logistration from './Logistration';
-import { clearThirdPartyAuthContextErrorMessage } from '../common-components/data/actions';
 import {
   COMPLETE_STATE, LOGIN_PAGE, REGISTER_PAGE,
 } from '../data/constants';
-import { backupLoginForm } from '../login/data/actions';
-import { backupRegistrationForm } from '../register/data/actions';
 
 jest.mock('@edx/frontend-platform/analytics', () => ({
   sendPageEvent: jest.fn(),
@@ -73,6 +70,8 @@ describe('Logistration', () => {
       validationApiRateLimited: false,
     },
     commonComponents: {
+      fieldDescriptions: {},
+      optionalFields: { fields: {}, extended_profile: [] },
       thirdPartyAuthContext: {
         providers: [],
         secondaryProviders: [],
@@ -113,14 +112,6 @@ describe('Logistration', () => {
     });
   });
 
-  it('should do nothing when user clicks on the same tab (login/register) again', () => {
-    const { container } = render(reduxWrapper(<Logistration />));
-    // While staying on the registration form, clicking the register tab again
-    fireEvent.click(container.querySelector('a[data-rb-event-key="/register"]'));
-
-    expect(sendTrackEvent).not.toHaveBeenCalledWith('edx.bi.register_form.toggled', { category: 'user-engagement' });
-  });
-
   it('should render registration page', () => {
     mergeConfig({
       ALLOW_PUBLIC_ACCOUNT_CREATION: true,
@@ -129,6 +120,19 @@ describe('Logistration', () => {
     const { container } = render(reduxWrapper(<Logistration />));
 
     expect(container.querySelector('RegistrationPage')).toBeDefined();
+  });
+
+  it('should not render login/register switch tabs', () => {
+    mergeConfig({
+      ALLOW_PUBLIC_ACCOUNT_CREATION: true,
+      SHOW_REGISTRATION_LINKS: true,
+    });
+
+    const { container } = render(reduxWrapper(<Logistration />));
+
+    expect(container.querySelector('#controlled-tab')).toBeNull();
+    expect(container.querySelector('a[data-rb-event-key="/register"]')).toBeNull();
+    expect(container.querySelector('a[data-rb-event-key="/login"]')).toBeNull();
   });
 
   it('should render login page', () => {
@@ -184,8 +188,8 @@ describe('Logistration', () => {
     // verifying sign in heading for institution login false
     expect(screen.getByRole('heading', { level: 3 }).textContent).toEqual('Sign in');
 
-    // verifying tabs heading for institution login true
-    fireEvent.click(screen.getByRole('link'));
+    // with public registration disabled, open institution login via credentials CTA
+    fireEvent.click(screen.getByText('Institution/campus credentials'));
     expect(container.querySelector('#controlled-tab')).toBeDefined();
   });
 
@@ -279,27 +283,5 @@ describe('Logistration', () => {
     mergeConfig({
       DISABLE_ENTERPRISE_LOGIN: '',
     });
-  });
-
-  it('should fire action to backup registration form on tab click', () => {
-    store.dispatch = jest.fn(store.dispatch);
-    const { container } = render(reduxWrapper(<Logistration />));
-    fireEvent.click(container.querySelector('a[data-rb-event-key="/login"]'));
-    expect(store.dispatch).toHaveBeenCalledWith(backupRegistrationForm());
-  });
-
-  it('should fire action to backup login form on tab click', () => {
-    store.dispatch = jest.fn(store.dispatch);
-    const props = { selectedPage: LOGIN_PAGE };
-    const { container } = render(reduxWrapper(<Logistration {...props} />));
-    fireEvent.click(container.querySelector('a[data-rb-event-key="/register"]'));
-    expect(store.dispatch).toHaveBeenCalledWith(backupLoginForm());
-  });
-
-  it('should clear tpa context errorMessage tab click', () => {
-    store.dispatch = jest.fn(store.dispatch);
-    const { container } = render(reduxWrapper(<Logistration />));
-    fireEvent.click(container.querySelector('a[data-rb-event-key="/login"]'));
-    expect(store.dispatch).toHaveBeenCalledWith(clearThirdPartyAuthContextErrorMessage());
   });
 });

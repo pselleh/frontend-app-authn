@@ -6,6 +6,11 @@ const messages = defineMessages({
     defaultMessage: 'Login | {siteName}',
     description: 'login page title',
   },
+  'login.page.eyebrow': {
+    id: 'login.page.eyebrow',
+    defaultMessage: 'Welcome back',
+    description: 'Small red label above the login heading',
+  },
   'login.page.heading': {
     id: 'login.page.heading',
     defaultMessage: 'Sign in',
@@ -14,7 +19,7 @@ const messages = defineMessages({
 
   'login.page.subheading': {
     id: 'login.page.subheading',
-    defaultMessage: 'Sign in to your account.',
+    defaultMessage: 'Access your courses and learning programs.',
     description: 'Visible login page subheading',
   },
 
@@ -103,24 +108,44 @@ const messages = defineMessages({
 
 
   // Account Activation Strings
+  'account.activation.success.eyebrow': {
+    id: 'account.activation.success.eyebrow',
+    defaultMessage: 'Welcome',
+    description: 'Eyebrow above account activation success notice',
+  },
   'account.activation.success.message.title': {
     id: 'account.activation.success.message.title',
-    defaultMessage: 'Success! You have activated your account.',
+    defaultMessage: 'Account activated',
     description: 'Account Activation success message title',
   },
   'account.activation.success.message': {
     id: 'account.activation.success.message',
-    defaultMessage: 'You will now receive email updates and alerts from us related to the courses you are enrolled in. Sign in to continue.',
+    defaultMessage: 'Your account is ready. Sign in below to continue to your courses.',
     description: 'Message show to learners when their account has been activated successfully',
+  },
+  'account.activation.info.eyebrow': {
+    id: 'account.activation.info.eyebrow',
+    defaultMessage: 'Already done',
+    description: 'Eyebrow above already-activated notice',
+  },
+  'account.activation.info.message.title': {
+    id: 'account.activation.info.message.title',
+    defaultMessage: 'Account already activated',
+    description: 'Title when learner account has already been activated',
   },
   'account.activation.info.message': {
     id: 'account.activation.info.message',
-    defaultMessage: 'This account has already been activated.',
+    defaultMessage: 'This account has already been activated. You can sign in below.',
     description: 'Message shown when learner account has already been activated',
+  },
+  'account.activation.error.eyebrow': {
+    id: 'account.activation.error.eyebrow',
+    defaultMessage: 'Activation issue',
+    description: 'Eyebrow above account activation error notice',
   },
   'account.activation.error.message.title': {
     id: 'account.activation.error.message.title',
-    defaultMessage: 'Your account could not be activated',
+    defaultMessage: 'Could not activate account',
     description: 'Account Activation error message title',
   },
   'account.activation.support.link': {
@@ -129,24 +154,44 @@ const messages = defineMessages({
     description: 'Link text used in account activation error message to go to learner help center',
   },
   // Email Confirmation Strings
+  'account.confirmation.success.eyebrow': {
+    id: 'account.confirmation.success.eyebrow',
+    defaultMessage: 'Welcome',
+    description: 'Eyebrow above email confirmation success notice',
+  },
   'account.confirmation.success.message.title': {
     id: 'account.confirmation.success.message.title',
-    defaultMessage: 'Success! You have confirmed your email.',
+    defaultMessage: 'Email confirmed',
     description: 'Account verification success message title',
   },
   'account.confirmation.success.message': {
     id: 'account.confirmation.success.message',
-    defaultMessage: 'Sign in to continue.',
+    defaultMessage: 'Your email is confirmed. Sign in below to continue.',
     description: 'Message show to learners when their account has been activated successfully',
+  },
+  'account.confirmation.info.eyebrow': {
+    id: 'account.confirmation.info.eyebrow',
+    defaultMessage: 'Already done',
+    description: 'Eyebrow above already-confirmed notice',
+  },
+  'account.confirmation.info.message.title': {
+    id: 'account.confirmation.info.message.title',
+    defaultMessage: 'Email already confirmed',
+    description: 'Title when email has already been confirmed',
   },
   'account.confirmation.info.message': {
     id: 'account.confirmation.info.message',
-    defaultMessage: 'This email has already been confirmed.',
+    defaultMessage: 'This email has already been confirmed. You can sign in below.',
     description: 'Message shown when learner account has already been verified',
+  },
+  'account.confirmation.error.eyebrow': {
+    id: 'account.confirmation.error.eyebrow',
+    defaultMessage: 'Confirmation issue',
+    description: 'Eyebrow above email confirmation error notice',
   },
   'account.confirmation.error.message.title': {
     id: 'account.confirmation.error.message.title',
-    defaultMessage: 'Your email could not be confirmed',
+    defaultMessage: 'Could not confirm email',
     description: 'Account verification error message title',
   },
   'tpa.account.link': {

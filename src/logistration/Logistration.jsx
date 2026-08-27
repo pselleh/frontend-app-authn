@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { getConfig } from '@edx/frontend-platform';
 import { sendPageEvent, sendTrackEvent } from '@edx/frontend-platform/analytics';
@@ -12,10 +12,9 @@ import {
 } from '@openedx/paragon';
 import { ChevronLeft } from '@openedx/paragon/icons';
 import PropTypes from 'prop-types';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import BaseContainer from '../base-container';
-import { clearThirdPartyAuthContextErrorMessage } from '../common-components/data/actions';
 import {
   tpaProvidersSelector,
 } from '../common-components/data/selectors';
@@ -24,24 +23,20 @@ import { LOGIN_PAGE, REGISTER_PAGE } from '../data/constants';
 import {
   getTpaHint, getTpaProvider, updatePathWithQueryParams,
 } from '../data/utils';
-import { backupLoginForm } from '../login/data/actions';
 import LoginComponentSlot from '../plugin-slots/LoginComponentSlot';
 import { RegistrationPage } from '../register';
-import { backupRegistrationForm } from '../register/data/actions';
 
 const Logistration = ({
   selectedPage,
 }) => {
   const tpaHint = getTpaHint();
   const tpaProviders = useSelector(tpaProvidersSelector);
-  const dispatch = useDispatch();
   const {
     providers,
     secondaryProviders,
   } = tpaProviders;
   const { formatMessage } = useIntl();
   const [institutionLogin, setInstitutionLogin] = useState(false);
-  const [key, setKey] = useState('');
   const navigate = useNavigate();
   const disablePublicAccountCreation = getConfig().ALLOW_PUBLIC_ACCOUNT_CREATION === false;
   const hideRegistrationLink = getConfig().SHOW_REGISTRATION_LINKS === false;
@@ -53,6 +48,13 @@ const Logistration = ({
         .getCsrfToken(getConfig().LMS_BASE_URL);
     }
   });
+
+  useEffect(() => {
+    document.body.classList.add('cba-auth-page');
+    return () => {
+      document.body.classList.remove('cba-auth-page');
+    };
+  }, []);
 
   useEffect(() => {
     if (disablePublicAccountCreation) {
@@ -69,20 +71,6 @@ const Logistration = ({
     }
 
     setInstitutionLogin(!institutionLogin);
-  };
-
-  const handleOnSelect = (tabKey, currentTab) => {
-    if (tabKey === currentTab) {
-      return;
-    }
-    sendTrackEvent(`edx.bi.${tabKey.replace('/', '')}_form.toggled`, { category: 'user-engagement' });
-    dispatch(clearThirdPartyAuthContextErrorMessage());
-    if (tabKey === LOGIN_PAGE) {
-      dispatch(backupRegistrationForm());
-    } else if (tabKey === REGISTER_PAGE) {
-      dispatch(backupLoginForm());
-    }
-    setKey(tabKey);
   };
 
   const tabTitle = (
@@ -103,7 +91,7 @@ const Logistration = ({
 
   return (
     <BaseContainer>
-      <div>
+      <div className={`cba-auth${selectedPage === LOGIN_PAGE ? ' cba-auth--login' : ' cba-auth--register'}`}>
         {disablePublicAccountCreation
           ? (
             <>
@@ -125,24 +113,10 @@ const Logistration = ({
           )
           : (
             <div>
-              {institutionLogin
-                ? (
-                  <Tabs defaultActiveKey="" id="controlled-tab" onSelect={handleInstitutionLogin}>
-                    <Tab title={tabTitle} eventKey={selectedPage === LOGIN_PAGE ? LOGIN_PAGE : REGISTER_PAGE} />
-                  </Tabs>
-                )
-                : (!isValidTpaHint() && !hideRegistrationLink && (
-                  <Tabs
-                    defaultActiveKey={selectedPage}
-                    id="controlled-tab"
-                    onSelect={(tabKey) => handleOnSelect(tabKey, selectedPage)}
-                  >
-                    <Tab title={formatMessage(messages['logistration.register'])} eventKey={REGISTER_PAGE} />
-                    <Tab title={formatMessage(messages['logistration.sign.in'])} eventKey={LOGIN_PAGE} />
-                  </Tabs>
-                ))}
-              {key && (
-                <Navigate to={updatePathWithQueryParams(key)} replace />
+              {institutionLogin && (
+                <Tabs defaultActiveKey="" id="controlled-tab" onSelect={handleInstitutionLogin}>
+                  <Tab title={tabTitle} eventKey={selectedPage === LOGIN_PAGE ? LOGIN_PAGE : REGISTER_PAGE} />
+                </Tabs>
               )}
               <div id="main-content" className="main-content">
                 {!institutionLogin && !isValidTpaHint() && hideRegistrationLink && (

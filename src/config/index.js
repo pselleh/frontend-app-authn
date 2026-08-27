@@ -1,6 +1,26 @@
+const PLACEHOLDER_SITE_NAMES = new Set(['', 'null', 'Your Platform Name Here']);
+
+const resolveSiteName = () => {
+  const configured = process.env.SITE_NAME;
+  if (configured && !PLACEHOLDER_SITE_NAMES.has(String(configured).trim())) {
+    return configured;
+  }
+  return 'Center for Business Acceleration';
+};
+
+const resolveFaviconUrl = () => {
+  const configured = process.env.FAVICON_URL;
+  if (configured && configured !== 'null' && !configured.includes('edx-cdn.org')) {
+    return configured;
+  }
+  return '/favicon.ico';
+};
+
 const configuration = {
   APP_ID: process.env.APP_ID || 'authn',
   MFE_CONFIG_API_URL: process.env.MFE_CONFIG_API_URL || '/api/mfe_config/v1',
+  SITE_NAME: resolveSiteName(),
+  FAVICON_URL: resolveFaviconUrl(),
 
   // Cookies related configs
   SESSION_COOKIE_DOMAIN: process.env.SESSION_COOKIE_DOMAIN || '',
@@ -21,10 +41,10 @@ const configuration = {
   LOGIN_ISSUE_SUPPORT_LINK: process.env.LOGIN_ISSUE_SUPPORT_LINK || null,
   PASSWORD_RESET_SUPPORT_LINK: process.env.PASSWORD_RESET_SUPPORT_LINK || null,
   POST_REGISTRATION_REDIRECT_URL: process.env.POST_REGISTRATION_REDIRECT_URL || '',
-  PRIVACY_POLICY: process.env.PRIVACY_POLICY || null,
+  PRIVACY_POLICY: process.env.PRIVACY_POLICY || 'https://centerforbusinessacceleration.com/privacy/',
   SEARCH_CATALOG_URL: process.env.SEARCH_CATALOG_URL || null,
-  TOS_AND_HONOR_CODE: process.env.TOS_AND_HONOR_CODE || null,
-  TOS_LINK: process.env.TOS_LINK || null,
+  TOS_AND_HONOR_CODE: process.env.TOS_AND_HONOR_CODE || 'https://centerforbusinessacceleration.com/terms/',
+  TOS_LINK: process.env.TOS_LINK || 'https://centerforbusinessacceleration.com/terms/',
   // Base container images
   BANNER_IMAGE_LARGE: process.env.BANNER_IMAGE_LARGE || '',
   BANNER_IMAGE_MEDIUM: process.env.BANNER_IMAGE_MEDIUM || '',

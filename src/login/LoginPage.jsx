@@ -10,7 +10,7 @@ import { Form, StatefulButton } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import {
   FormGroup,
@@ -20,7 +20,10 @@ import {
   ThirdPartyAuthAlert,
 } from '../common-components';
 import AccountActivationMessage from './AccountActivationMessage';
-import { getThirdPartyAuthContext } from '../common-components/data/actions';
+import {
+  clearThirdPartyAuthContextErrorMessage,
+  getThirdPartyAuthContext,
+} from '../common-components/data/actions';
 import { thirdPartyAuthContextSelector } from '../common-components/data/selectors';
 import EnterpriseSSO from '../common-components/EnterpriseSSO';
 import ThirdPartyAuth from '../common-components/ThirdPartyAuth';
@@ -41,7 +44,7 @@ import {
   getRecaptchaToken,
   RECAPTCHA_ACTIONS,
 } from '../utils/recaptcha';
-import { backupLoginFormBegin, dismissPasswordResetBanner, loginRequest } from './data/actions';
+import { backupLoginForm, backupLoginFormBegin, dismissPasswordResetBanner, loginRequest } from './data/actions';
 import { INVALID_FORM, TPA_AUTHENTICATION_FAILURE } from './data/constants';
 import LoginFailureMessage from './LoginFailure';
 import messages from './messages';
@@ -51,6 +54,7 @@ const LoginPage = ({
   handleInstitutionLogin,
 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const backupFormState = useCallback((data) => dispatch(backupLoginFormBegin(data)), [dispatch]);
   const getTPADataFromBackend = useCallback(() => dispatch(getThirdPartyAuthContext()), [dispatch]);
   const {
@@ -232,6 +236,14 @@ const LoginPage = ({
     sendTrackEvent('edx.bi.password-reset_form.toggled', { category: 'user-engagement' });
   };
 
+  const goToRegister = (event) => {
+    event.preventDefault();
+    sendTrackEvent('edx.bi.register_form.toggled', { category: 'user-engagement' });
+    dispatch(clearThirdPartyAuthContextErrorMessage());
+    dispatch(backupLoginForm());
+    navigate(updatePathWithQueryParams(REGISTER_PAGE));
+  };
+
   const {
     provider,
     skipHintedLogin,
@@ -270,98 +282,110 @@ const LoginPage = ({
         redirectUrl={loginResult.redirectUrl}
         finishAuthUrl={finishAuthUrl}
       />
-      <div className="mw-xs mt-3 mb-2">
-        <LoginFailureMessage
-          errorCode={errorCode.type}
-          errorCount={errorCode.count}
-          context={errorCode.context}
-        />
-
-        <h1 className="mb-3">
-          {formatMessage(messages['login.page.heading'])}
-        </h1>
-
-        <p className="mb-4">
-          {formatMessage(messages['login.page.subheading'])}
-        </p>
-        <ThirdPartyAuthAlert
-          currentProvider={currentProvider}
-          platformName={platformName}
-        />
-        <AccountActivationMessage
-          messageType={activationMsgType}
-        />
-        {showResetPasswordSuccessBanner && <ResetPasswordSuccess />}
-        <Form id="sign-in-form" name="sign-in-form">
-          <FormGroup
-            name="emailOrUsername"
-            value={formFields.emailOrUsername}
-            autoComplete="on"
-            handleChange={handleOnChange}
-            handleFocus={handleOnFocus}
-            errorMessage={errors.emailOrUsername}
-            floatingLabel={formatMessage(messages['login.user.identity.label'])}
+      <div className="cba-auth-login">
+        <div className="cba-auth-card">
+          <LoginFailureMessage
+            errorCode={errorCode.type}
+            errorCount={errorCode.count}
+            context={errorCode.context}
           />
-          <PasswordField
-            name="password"
-            value={formFields.password}
-            autoComplete="off"
-            showScreenReaderText={false}
-            showRequirements={false}
-            handleChange={handleOnChange}
-            handleFocus={handleOnFocus}
-            errorMessage={errors.password}
-            floatingLabel={formatMessage(messages['login.password.label'])}
+          <AccountActivationMessage
+            messageType={activationMsgType}
           />
-          <div className="d-flex justify-content-end mb-3">
-            <Link
-              id="forgot-password"
-              name="forgot-password"
-              className="btn btn-link font-weight-500 text-body p-0"
-              to={updatePathWithQueryParams(RESET_PAGE)}
-              onClick={trackForgotPasswordLinkClick}
-            >
-              {formatMessage(messages['forgot.password'])}
-            </Link>
-          </div>
+          {showResetPasswordSuccessBanner && <ResetPasswordSuccess />}
 
-          <StatefulButton
-            name="sign-in"
-            id="sign-in"
-            type="submit"
-            variant="brand"
-            className="login-button-width"
-            state={submitState}
-            labels={{
-              default: formatMessage(messages['sign.in.button']),
-              pending: '',
-            }}
-            onClick={handleSubmit}
-            onMouseDown={(event) => event.preventDefault()}
-          />
-
-          <div className="text-center mt-4">
-            <span>
-              {formatMessage(messages['new.user.label'])}
-              {' '}
-            </span>
-            <Link
-              id="create-account"
-              name="create-account"
-              to={updatePathWithQueryParams(REGISTER_PAGE)}
-            >
-              {formatMessage(messages['create.account.link'])}
-            </Link>
-          </div>
-          <ThirdPartyAuth
+          <header className="cba-auth-card__header">
+            <p className="cba-auth-card__eyebrow">
+              {formatMessage(messages['login.page.eyebrow'])}
+            </p>
+            <h1 className="cba-auth-card__title">
+              {formatMessage(messages['login.page.heading'])}
+            </h1>
+            <p className="cba-auth-card__lead">
+              {formatMessage(messages['login.page.subheading'])}
+            </p>
+          </header>
+          <ThirdPartyAuthAlert
             currentProvider={currentProvider}
-            providers={providers}
-            secondaryProviders={secondaryProviders}
-            handleInstitutionLogin={handleInstitutionLogin}
-            thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
-            isLoginPage
+            platformName={platformName}
           />
-        </Form>
+          <Form id="sign-in-form" name="sign-in-form">
+            <FormGroup
+              name="emailOrUsername"
+              value={formFields.emailOrUsername}
+              autoComplete="on"
+              handleChange={handleOnChange}
+              handleFocus={handleOnFocus}
+              errorMessage={errors.emailOrUsername}
+              floatingLabel={formatMessage(messages['login.user.identity.label'])}
+            />
+            <PasswordField
+              name="password"
+              value={formFields.password}
+              autoComplete="current-password"
+              showScreenReaderText={false}
+              showRequirements={false}
+              handleChange={handleOnChange}
+              handleFocus={handleOnFocus}
+              errorMessage={errors.password}
+              floatingLabel={formatMessage(messages['login.password.label'])}
+            />
+            <div className="d-flex justify-content-end mb-3">
+              <Link
+                id="forgot-password"
+                name="forgot-password"
+                className="btn btn-link font-weight-500 text-body p-0"
+                to={updatePathWithQueryParams(RESET_PAGE)}
+                onClick={trackForgotPasswordLinkClick}
+              >
+                {formatMessage(messages['forgot.password'])}
+              </Link>
+            </div>
+
+            <StatefulButton
+              name="sign-in"
+              id="sign-in"
+              type="submit"
+              variant="brand"
+              className="login-button-width"
+              state={submitState}
+              labels={{
+                default: formatMessage(messages['sign.in.button']),
+                pending: '',
+              }}
+              onClick={handleSubmit}
+              onMouseDown={(event) => event.preventDefault()}
+            />
+
+            <div className="cba-auth-card__footer">
+              {(getConfig().ALLOW_PUBLIC_ACCOUNT_CREATION !== false
+                && getConfig().SHOW_REGISTRATION_LINKS !== false) && (
+                <>
+                  <span>
+                    {formatMessage(messages['new.user.label'])}
+                    {' '}
+                  </span>
+                  <Link
+                    id="create-account"
+                    name="create-account"
+                    to={updatePathWithQueryParams(REGISTER_PAGE)}
+                    onClick={goToRegister}
+                  >
+                    {formatMessage(messages['create.account.link'])}
+                  </Link>
+                </>
+              )}
+            </div>
+            <ThirdPartyAuth
+              currentProvider={currentProvider}
+              providers={providers}
+              secondaryProviders={secondaryProviders}
+              handleInstitutionLogin={handleInstitutionLogin}
+              thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
+              isLoginPage
+            />
+          </Form>
+        </div>
       </div>
     </>
   );

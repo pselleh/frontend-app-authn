@@ -583,7 +583,7 @@ describe('RegistrationPage', () => {
       const buttonLabel = 'Register';
       delete window.location;
       window.location = { href: getConfig().BASE_URL, search: `?cta=${buttonLabel}` };
-      const { container } = render(reduxWrapper(<RegistrationPage {...props} />));
+      const { container } = render(routerWrapper(reduxWrapper(<RegistrationPage {...props} />)));
       const button = container.querySelector('button[type="submit"] span');
 
       const buttonText = button.textContent;
@@ -627,7 +627,7 @@ describe('RegistrationPage', () => {
       );
 
       expect(
-        getByText('Check your email to activate account'),
+        getByText('Validate your account'),
       ).toBeTruthy();
 
       expect(
@@ -673,7 +673,7 @@ describe('RegistrationPage', () => {
       );
 
       expect(
-        getByText('Check your email to activate account'),
+        getByText('Validate your account'),
       ).toBeTruthy();
 
       expect(
@@ -699,6 +699,10 @@ describe('RegistrationPage', () => {
           ...initialState.register,
           registrationResult: {
             success: true,
+            authenticatedUser: {
+              userId: 1,
+              username: 'testuser',
+            },
           },
         },
         commonComponents: {
@@ -718,6 +722,47 @@ describe('RegistrationPage', () => {
         </Router>,
       ));
       expect(mockNavigate).toHaveBeenCalledWith(AUTHN_PROGRESSIVE_PROFILING);
+    });
+
+    it('should show activation notice when progressive profiling is enabled but user is not authenticated yet', () => {
+      mergeConfig({
+        ENABLE_PROGRESSIVE_PROFILING_ON_AUTHN: true,
+      });
+
+      store = mockStore({
+        ...initialState,
+        register: {
+          ...initialState.register,
+          registrationResult: {
+            success: true,
+            authenticatedUser: null,
+            redirectUrl: 'https://test.com/dashboard',
+          },
+        },
+        commonComponents: {
+          ...initialState.commonComponents,
+          optionalFields: {
+            fields: {
+              country: { name: 'country', error_message: '' },
+            },
+          },
+        },
+      });
+
+      delete window.location;
+      window.location = { href: getConfig().BASE_URL };
+
+      const { container, getByText } = render(
+        routerWrapper(reduxWrapper(<RegistrationPage {...props} />)),
+      );
+
+      expect(getByText('Validate your account')).toBeTruthy();
+      expect(container.querySelector('#registration-activation-notice')).toBeTruthy();
+      expect(mockNavigate).not.toHaveBeenCalledWith(AUTHN_PROGRESSIVE_PROFILING);
+
+      mergeConfig({
+        ENABLE_PROGRESSIVE_PROFILING_ON_AUTHN: false,
+      });
     });
 
     // ******** miscellaneous tests ********
@@ -891,6 +936,10 @@ describe('RegistrationPage', () => {
           ...initialState.register,
           registrationResult: {
             success: true,
+            authenticatedUser: {
+              userId: 1,
+              username: 'testuser',
+            },
           },
         },
         commonComponents: {
@@ -910,7 +959,7 @@ describe('RegistrationPage', () => {
     it('should not display validations error on blur event when embedded variant is rendered', () => {
       delete window.location;
       window.location = { href: getConfig().BASE_URL.concat(REGISTER_PAGE), search: '?host=http://localhost/host-website' };
-      const { container } = render(reduxWrapper(<RegistrationPage {...props} />));
+      const { container } = render(routerWrapper(reduxWrapper(<RegistrationPage {...props} />)));
 
       const usernameInput = container.querySelector('input#username');
       fireEvent.blur(usernameInput, { target: { value: '', name: 'username' } });

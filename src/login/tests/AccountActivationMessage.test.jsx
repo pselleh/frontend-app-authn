@@ -21,12 +21,10 @@ describe('AccountActivationMessage', () => {
       </IntlProvider>,
     );
 
-    const expectedMessage = 'This account has already been activated.';
-
-    expect(screen.getByText(
-      '',
-      { selector: '#account-activation-message' },
-    ).textContent).toBe(expectedMessage);
+    const node = screen.getByRole('status');
+    expect(node.id).toBe('account-activation-message');
+    expect(node.textContent).toContain('Account already activated');
+    expect(node.textContent).toContain('This account has already been activated. You can sign in below.');
   });
 
   it('should match account activated success message', () => {
@@ -36,14 +34,9 @@ describe('AccountActivationMessage', () => {
       </IntlProvider>,
     );
 
-    const expectedMessage = 'Success! You have activated your account.'
-                            + 'You will now receive email updates and alerts from us related to '
-                            + 'the courses you are enrolled in. Sign in to continue.';
-
-    expect(screen.getByText(
-      '',
-      { selector: '#account-activation-message' },
-    ).textContent).toBe(expectedMessage);
+    const node = screen.getByRole('status');
+    expect(node.textContent).toContain('Account activated');
+    expect(node.textContent).toContain('Your account is ready. Sign in below to continue to your courses.');
   });
 
   it('should match account activation error message', () => {
@@ -53,13 +46,9 @@ describe('AccountActivationMessage', () => {
       </IntlProvider>,
     );
 
-    const expectedMessage = 'Your account could not be activated'
-                            + 'Something went wrong, please contact support to resolve this issue.';
-
-    expect(screen.getByText(
-      '',
-      { selector: '#account-activation-message' },
-    ).textContent).toBe(expectedMessage);
+    const node = screen.getByRole('status');
+    expect(node.textContent).toContain('Could not activate account');
+    expect(node.textContent).toContain('contact support');
   });
 
   it('should not display anything for invalid message type', () => {
@@ -69,8 +58,7 @@ describe('AccountActivationMessage', () => {
       </IntlProvider>,
     );
 
-    const accountActivationMessage = container.querySelectorAll('#account-activation-message');
-    expect(accountActivationMessage[0]).toBe(undefined);
+    expect(container.querySelector('#account-activation-message')).toBeNull();
   });
 });
 
@@ -88,12 +76,9 @@ describe('EmailConfirmationMessage', () => {
       </IntlProvider>,
     );
 
-    const expectedMessage = 'This email has already been confirmed.';
-
-    expect(screen.getByText(
-      '',
-      { selector: '#account-activation-message' },
-    ).textContent).toBe(expectedMessage);
+    const node = screen.getByRole('status');
+    expect(node.textContent).toContain('Email already confirmed');
+    expect(node.textContent).toContain('This email has already been confirmed. You can sign in below.');
   });
 
   it('should match email confirmation success message', () => {
@@ -102,12 +87,10 @@ describe('EmailConfirmationMessage', () => {
         <AccountActivationMessage messageType={ACCOUNT_ACTIVATION_MESSAGE.SUCCESS} />
       </IntlProvider>,
     );
-    const expectedMessage = 'Success! You have confirmed your email.Sign in to continue.';
 
-    expect(screen.getByText(
-      '',
-      { selector: '#account-activation-message' },
-    ).textContent).toBe(expectedMessage);
+    const node = screen.getByRole('status');
+    expect(node.textContent).toContain('Email confirmed');
+    expect(node.textContent).toContain('Your email is confirmed. Sign in below to continue.');
   });
 
   it('should match email confirmation error message', () => {
@@ -116,11 +99,9 @@ describe('EmailConfirmationMessage', () => {
         <AccountActivationMessage messageType={ACCOUNT_ACTIVATION_MESSAGE.ERROR} />
       </IntlProvider>,
     );
-    const expectedMessage = 'Your email could not be confirmed'
-                            + 'Something went wrong, please contact support to resolve this issue.';
-    expect(screen.getByText(
-      '',
-      { selector: '#account-activation-message' },
-    ).textContent).toBe(expectedMessage);
+
+    const node = screen.getByRole('status');
+    expect(node.textContent).toContain('Could not confirm email');
+    expect(node.textContent).toContain('contact support');
   });
 });

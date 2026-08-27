@@ -213,7 +213,8 @@ describe('ConfigurableRegistrationForm', () => {
       )));
 
       expect(document.querySelector('#profession')).toBeTruthy();
-      expect(document.querySelector('#tos')).toBeTruthy();
+      // terms_of_service without a type is not rendered as #tos by this component alone.
+      expect(document.querySelector('#tos')).toBeNull();
     });
 
     it('should check TOS and honor code fields if they exist when auto submitting register form', () => {

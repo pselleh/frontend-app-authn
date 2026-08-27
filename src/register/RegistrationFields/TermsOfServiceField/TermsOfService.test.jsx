@@ -33,14 +33,16 @@ describe('TermsOfServiceTest', () => {
       </IntlProvider>,
     );
 
-    const expectedMsg = 'Agree to terms and policiesin a new tab';
-
     const termsOfServiceLabel = container.querySelector('#terms-of-service label');
-    expect(termsOfServiceLabel.textContent).toEqual(expectedMsg);
+    expect(termsOfServiceLabel.textContent).toContain('I have read and agree to the');
+    expect(termsOfServiceLabel.textContent).toContain('Terms of Service');
+    expect(termsOfServiceLabel.textContent).toContain('Privacy Policy');
 
-    const termsLink = container.querySelector('#terms-of-service a');
-    expect(termsLink).not.toBeNull();
-    expect(termsLink.getAttribute('target')).toEqual('_blank');
+    const links = container.querySelectorAll('#terms-of-service a');
+    expect(links.length).toBeGreaterThanOrEqual(2);
+    expect(links[0].getAttribute('target')).toEqual('_blank');
+    expect(links[0].getAttribute('href')).toContain('terms');
+    expect(links[1].getAttribute('href')).toContain('privacy');
 
     expect(value).toEqual(false);
   });

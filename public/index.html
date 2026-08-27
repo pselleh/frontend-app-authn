@@ -1,10 +1,14 @@
 <!doctype html>
 <html lang="en-us">
   <head>
-      <title><%= (process.env.SITE_NAME && process.env.SITE_NAME != 'null') ? 'Authentication | ' + process.env.SITE_NAME : 'Authentication' %></title>    
+      <title><%= (process.env.SITE_NAME && process.env.SITE_NAME != 'null' && process.env.SITE_NAME != 'Your Platform Name Here') ? 'Authentication | ' + process.env.SITE_NAME : 'Authentication | Center for Business Acceleration' %></title>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link rel="shortcut icon" href="<%=htmlWebpackPlugin.options.FAVICON_URL%>" type="image/x-icon"/>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+      <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+      <link rel="shortcut icon" href="<%= (htmlWebpackPlugin.options.FAVICON_URL && htmlWebpackPlugin.options.FAVICON_URL !== 'null' && !String(htmlWebpackPlugin.options.FAVICON_URL).includes('edx-cdn.org')) ? htmlWebpackPlugin.options.FAVICON_URL : '/favicon.ico' %>" type="image/x-icon"/>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.4.4/iframeResizer.contentWindow.min.js"
               integrity="sha512-IWwZFBvHzN41wNI6etRLLuLrDDj/6AwJcPt7cmKJAzluYTIHHQ1PF8wh0rSy05jxEvvjflVvH2MxeV6riyEEXg=="
               crossorigin="anonymous"

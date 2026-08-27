@@ -84,6 +84,51 @@ const messages = defineMessages({
     defaultMessage: '{label}',
     description: 'Label text for registration form submission button for those users who are landing through redirections',
   },
+  'registration.page.eyebrow': {
+    id: 'registration.page.eyebrow',
+    defaultMessage: 'Get started',
+    description: 'Small red label above the registration heading',
+  },
+  'registration.page.heading': {
+    id: 'registration.page.heading',
+    defaultMessage: 'Create your account',
+    description: 'Heading on the registration form card',
+  },
+  'registration.page.subheading': {
+    id: 'registration.page.subheading',
+    defaultMessage: 'Join {siteName} to access your learning programs.',
+    description: 'Supporting text under the registration heading',
+  },
+  'registration.activation.eyebrow': {
+    id: 'registration.activation.eyebrow',
+    defaultMessage: 'One more step',
+    description: 'Small red label above the activation notice heading',
+  },
+  'registration.activation.heading': {
+    id: 'registration.activation.heading',
+    defaultMessage: 'Validate your account',
+    description: 'Heading on the post-registration activation notice',
+  },
+  'registration.activation.lead': {
+    id: 'registration.activation.lead',
+    defaultMessage: 'We sent an activation link to your email. Open it and confirm your account before signing in.',
+    description: 'Lead text on the post-registration activation notice',
+  },
+  'registration.activation.note': {
+    id: 'registration.activation.note',
+    defaultMessage: "Didn't get the email? Check spam or promotions, then wait a few minutes and try again.",
+    description: 'Secondary note on the post-registration activation notice',
+  },
+  'registration.activation.sign.in': {
+    id: 'registration.activation.sign.in',
+    defaultMessage: 'Back to sign in',
+    description: 'Link from activation notice back to the login page',
+  },
+  'registration.already.have.account': {
+    id: 'registration.already.have.account',
+    defaultMessage: 'Already have an account?',
+    description: 'Prompt before the sign-in link on registration page',
+  },
   // Institution login
   'register.institution.login.page.title': {
     id: 'register.institution.login.page.title',

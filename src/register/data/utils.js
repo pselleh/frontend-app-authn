@@ -181,7 +181,7 @@ export const isFormValid = (
     if (key === 'country' && !configurableFormFields?.country?.displayValue) {
       fieldErrors[key] = formatMessage(messages['empty.country.field.error']);
     } else if (key === 'terms_of_service' && !configurableFormFields?.terms_of_service) {
-      fieldErrors[key] = 'You must agree to the terms and policies before creating an account.';
+      fieldErrors[key] = 'You must agree to the Terms of Service and Privacy Policy before creating an account.';
     } else if (!configurableFormFields[key]) {
       fieldErrors[key] = fieldDescriptions[key].error_message;
     }

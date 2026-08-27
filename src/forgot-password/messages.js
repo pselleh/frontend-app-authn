@@ -6,6 +6,11 @@ const messages = defineMessages({
     defaultMessage: 'Forgot Password | {siteName}',
     description: 'forgot password page title',
   },
+  'forgot.password.page.eyebrow': {
+    id: 'forgot.password.page.eyebrow',
+    defaultMessage: 'Account recovery',
+    description: 'Small red label above the forgot password heading',
+  },
   'forgot.password.page.heading': {
     id: 'forgot.password.page.heading',
     defaultMessage: 'Reset password',
@@ -13,7 +18,7 @@ const messages = defineMessages({
   },
   'forgot.password.page.instructions': {
     id: 'forgot.password.page.instructions',
-    defaultMessage: 'Please enter your email address below and we will send you an email with instructions on how to reset your password.',
+    defaultMessage: 'Enter your email and we will send instructions to reset your password.',
     description: 'Instructions message for forgot password page.',
   },
   'forgot.password.page.invalid.email.message': {

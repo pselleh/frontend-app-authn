@@ -10,6 +10,9 @@ const TermsOfService = (props) => {
     errorMessage, onChangeHandler, value,
   } = props;
 
+  const termsUrl = getConfig().TOS_LINK || 'https://centerforbusinessacceleration.com/terms/';
+  const privacyUrl = getConfig().PRIVACY_POLICY || 'https://centerforbusinessacceleration.com/privacy/';
+
   return (
     <div id="terms-of-service" className="micro text-muted">
       <Form.Checkbox
@@ -22,12 +25,29 @@ const TermsOfService = (props) => {
       >
         <FormattedMessage
           id="register.page.terms.of.service"
-          defaultMessage="{termsOfService}"
-          description="Required agreement to the terms and policies."
+          defaultMessage="I have read and agree to the {termsOfService} and {privacyPolicy}."
+          description="Required agreement to Terms of Service and Privacy Policy with links."
           values={{
             termsOfService: (
-              <Hyperlink variant="muted" destination={getConfig().TOS_LINK || '#'} target="_blank">
-                Agree to terms and policies
+              <Hyperlink
+                className="cba-tos-link"
+                variant="muted"
+                destination={termsUrl}
+                target="_blank"
+                showLaunchIcon={false}
+              >
+                Terms of Service
+              </Hyperlink>
+            ),
+            privacyPolicy: (
+              <Hyperlink
+                className="cba-tos-link"
+                variant="muted"
+                destination={privacyUrl}
+                target="_blank"
+                showLaunchIcon={false}
+              >
+                Privacy Policy
               </Hyperlink>
             ),
           }}

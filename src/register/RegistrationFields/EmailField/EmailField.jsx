@@ -127,6 +127,8 @@ const EmailField = (props) => {
 EmailField.defaultProps = {
   errorMessage: '',
   confirmEmailValue: null,
+  autoComplete: 'email',
+  type: 'email',
 };
 
 EmailField.propTypes = {
@@ -135,6 +137,8 @@ EmailField.propTypes = {
   handleChange: PropTypes.func.isRequired,
   handleErrorChange: PropTypes.func.isRequired,
   confirmEmailValue: PropTypes.string,
+  autoComplete: PropTypes.string,
+  type: PropTypes.string,
 };
 
 export default EmailField;

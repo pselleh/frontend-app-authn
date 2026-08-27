@@ -172,7 +172,7 @@ describe('Payload validation', () => {
 
     expect(isValid).toBe(false);
     expect(fieldErrors.terms_of_service).toBe(
-      'You must agree to the terms and policies before creating an account.',
+      'You must agree to the Terms of Service and Privacy Policy before creating an account.',
     );
   });
 

@@ -37,29 +37,44 @@ import './styles.scss';
 
 registerIcons();
 
+const PLACEHOLDER_SITE_NAMES = new Set([
+  '',
+  'null',
+  'Your Platform Name Here',
+]);
+
+const resolveSiteName = () => {
+  const configured = getConfig().SITE_NAME;
+  if (configured && !PLACEHOLDER_SITE_NAMES.has(String(configured).trim())) {
+    return configured;
+  }
+  return 'Center for Business Acceleration';
+};
+
 const buildFaviconUrl = () => {
   const configured = getConfig().FAVICON_URL;
-  if (configured) {
+  if (configured && configured !== 'null' && !configured.includes('edx-cdn.org')) {
     return configured;
   }
 
-  const lmsBaseUrl = (getConfig().LMS_BASE_URL || '').replace(/\/$/, '');
-
-  return lmsBaseUrl
-    ? `${lmsBaseUrl}/theming/asset/images/favicon.ico`
-    : '/theming/asset/images/favicon.ico';
+  return '/favicon.ico';
 };
 
 const MainApp = () => {
+  const siteName = resolveSiteName();
+  const faviconUrl = buildFaviconUrl();
+
   return (
     <AppProvider store={configureStore()}>
       <CbaAuthnChrome>
         <Helmet>
+          <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
           <link
             rel="shortcut icon"
-            href={buildFaviconUrl()}
+            href={faviconUrl}
             type="image/x-icon"
           />
+          <meta name="application-name" content={siteName} />
 
           <script
             src={`https://www.google.com/recaptcha/enterprise.js?render=${RECAPTCHA_SITE_KEY}`}
@@ -101,7 +116,7 @@ const MainApp = () => {
             path={REGISTER_PAGE}
             element={
               <UnAuthOnlyRoute>
-                <Logistration />
+                <Logistration selectedPage={REGISTER_PAGE} />
               </UnAuthOnlyRoute>
             }
           />

@@ -1,4 +1,8 @@
 // Load component based styles
+@import "_cba_tokens.scss";
+@import "_cba_chrome.scss";
+@import "_cba_feedback.scss";
+@import "_cba_auth_dark.scss";
 @import "_base_component.scss";
 @import "_registration.scss";
 @import "_recommendations_page.scss";

@@ -150,7 +150,7 @@ const UsernameField = (props) => {
 
 UsernameField.defaultProps = {
   errorMessage: '',
-  autoComplete: null,
+  autoComplete: 'nickname',
 };
 
 UsernameField.propTypes = {

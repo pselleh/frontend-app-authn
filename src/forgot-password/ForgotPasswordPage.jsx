@@ -46,6 +46,13 @@ const ForgotPasswordPage = (props) => {
   }, []);
 
   useEffect(() => {
+    document.body.classList.add('cba-auth-page');
+    return () => {
+      document.body.classList.remove('cba-auth-page');
+    };
+  }, []);
+
+  useEffect(() => {
     setValidationError(emailValidationError);
   }, [emailValidationError]);
 
@@ -101,57 +108,68 @@ const ForgotPasswordPage = (props) => {
           { siteName: getConfig().SITE_NAME })}
         </title>
       </Helmet>
-      <div>
+      <div className="cba-auth cba-auth--forgot">
         <Tabs activeKey="" id="controlled-tab" onSelect={(key) => navigate(updatePathWithQueryParams(key))}>
           <Tab title={tabTitle} eventKey={LOGIN_PAGE} />
         </Tabs>
         <div id="main-content" className="main-content">
-          <Form id="forget-password-form" name="forget-password-form" className="mw-xs">
-            <ForgotPasswordAlert email={bannerEmail} emailError={formErrors} status={status} />
-            <h2 className="h4">
-              {formatMessage(messages['forgot.password.page.heading'])}
-            </h2>
-            <p className="mb-4">
-              {formatMessage(messages['forgot.password.page.instructions'])}
-            </p>
-            <FormGroup
-              floatingLabel={formatMessage(messages['forgot.password.page.email.field.label'])}
-              name="email"
-              value={email}
-              autoComplete="on"
-              errorMessage={validationError}
-              handleChange={(e) => setEmail(e.target.value)}
-              handleBlur={handleBlur}
-              handleFocus={handleFocus}
-              helpText={[formatMessage(messages['forgot.password.email.help.text'], { platformName })]}
-            />
-            <StatefulButton
-              id="submit-forget-password"
-              name="submit-forget-password"
-              type="submit"
-              variant="brand"
-              className="forgot-password--button"
-              state={submitState}
-              labels={{
-                default: formatMessage(messages['forgot.password.page.submit.button']),
-                pending: '',
-              }}
-              onClick={handleSubmit}
-              onMouseDown={(e) => e.preventDefault()}
-            />
-            {(getConfig().LOGIN_ISSUE_SUPPORT_LINK) && (
-              <Hyperlink
-                id="forgot-password"
-                name="forgot-password"
-                className="ml-4 font-weight-500 text-body"
-                destination={getConfig().LOGIN_ISSUE_SUPPORT_LINK}
-                target="_blank"
-                showLaunchIcon={false}
-              >
-                {formatMessage(messages['need.help.sign.in.text'])}
-              </Hyperlink>
-            )}
-          </Form>
+          <div className="cba-auth-forgot">
+            <div className="cba-auth-card">
+              <ForgotPasswordAlert email={bannerEmail} emailError={formErrors} status={status} />
+              <header className="cba-auth-card__header">
+                <p className="cba-auth-card__eyebrow">
+                  {formatMessage(messages['forgot.password.page.eyebrow'])}
+                </p>
+                <h1 className="cba-auth-card__title">
+                  {formatMessage(messages['forgot.password.page.heading'])}
+                </h1>
+                <p className="cba-auth-card__lead">
+                  {formatMessage(messages['forgot.password.page.instructions'])}
+                </p>
+              </header>
+              <Form id="forget-password-form" name="forget-password-form">
+                <FormGroup
+                  floatingLabel={formatMessage(messages['forgot.password.page.email.field.label'])}
+                  name="email"
+                  value={email}
+                  autoComplete="on"
+                  errorMessage={validationError}
+                  handleChange={(e) => setEmail(e.target.value)}
+                  handleBlur={handleBlur}
+                  handleFocus={handleFocus}
+                  helpText={[formatMessage(messages['forgot.password.email.help.text'], { platformName })]}
+                />
+                <StatefulButton
+                  id="submit-forget-password"
+                  name="submit-forget-password"
+                  type="submit"
+                  variant="brand"
+                  className="forgot-password--button"
+                  state={submitState}
+                  labels={{
+                    default: formatMessage(messages['forgot.password.page.submit.button']),
+                    pending: '',
+                  }}
+                  onClick={handleSubmit}
+                  onMouseDown={(e) => e.preventDefault()}
+                />
+                {(getConfig().LOGIN_ISSUE_SUPPORT_LINK) && (
+                  <div className="cba-auth-card__footer cba-auth-card__footer--support">
+                    <Hyperlink
+                      id="forgot-password"
+                      name="forgot-password"
+                      className="font-weight-500"
+                      destination={getConfig().LOGIN_ISSUE_SUPPORT_LINK}
+                      target="_blank"
+                      showLaunchIcon={false}
+                    >
+                      {formatMessage(messages['need.help.sign.in.text'])}
+                    </Hyperlink>
+                  </div>
+                )}
+              </Form>
+            </div>
+          </div>
         </div>
       </div>
     </BaseContainer>

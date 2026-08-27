@@ -14,10 +14,12 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
+import { Link, useNavigate } from 'react-router-dom';
 
 import ConfigurableRegistrationForm from './components/ConfigurableRegistrationForm';
 import RegistrationFailure from './components/RegistrationFailure';
 import {
+  backupRegistrationForm,
   backupRegistrationFormBegin,
   clearRegistrationBackendError,
   registerNewUser,
@@ -46,15 +48,23 @@ import {
   RedirectLogistration,
   ThirdPartyAuthAlert,
 } from '../common-components';
-import { getThirdPartyAuthContext as getRegistrationDataFromBackend } from '../common-components/data/actions';
+import {
+  clearThirdPartyAuthContextErrorMessage,
+  getThirdPartyAuthContext as getRegistrationDataFromBackend,
+} from '../common-components/data/actions';
 import EnterpriseSSO from '../common-components/EnterpriseSSO';
 import commonMessages from '../common-components/messages';
 import ThirdPartyAuth from '../common-components/ThirdPartyAuth';
 import {
-  COMPLETE_STATE, PENDING_STATE, REGISTER_PAGE,
+  COMPLETE_STATE, LOGIN_PAGE, PENDING_STATE, REGISTER_PAGE,
 } from '../data/constants';
 import {
-  getAllPossibleQueryParams, getTpaHint, getTpaProvider, isHostAvailableInQueryParams, setCookie,
+  getAllPossibleQueryParams,
+  getTpaHint,
+  getTpaProvider,
+  isHostAvailableInQueryParams,
+  setCookie,
+  updatePathWithQueryParams,
 } from '../data/utils';
 
 /**
@@ -63,6 +73,7 @@ import {
 const RegistrationPage = (props) => {
   const { formatMessage } = useIntl();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isConfirmPasswordHidden, setIsConfirmPasswordHidden] = useState(true);
 
   const registrationEmbedded = isHostAvailableInQueryParams();
@@ -86,8 +97,8 @@ const RegistrationPage = (props) => {
   const userPipelineDataLoaded = useSelector(state => state.register.userPipelineDataLoaded);
   const submitState = useSelector(state => state.register.submitState);
 
-  const fieldDescriptions = useSelector(state => state.commonComponents.fieldDescriptions);
-  const optionalFields = useSelector(state => state.commonComponents.optionalFields);
+  const fieldDescriptions = useSelector(state => state.commonComponents.fieldDescriptions) || {};
+  const optionalFields = useSelector(state => state.commonComponents.optionalFields) || {};
   const thirdPartyAuthApiStatus = useSelector(state => state.commonComponents.thirdPartyAuthApiStatus);
   const autoSubmitRegForm = useSelector(state => state.commonComponents.thirdPartyAuthContext.autoSubmitRegForm);
   const thirdPartyAuthErrorMessage = useSelector(state => state.commonComponents.thirdPartyAuthContext.errorMessage);
@@ -204,6 +215,14 @@ const RegistrationPage = (props) => {
     }
   }, [registrationResult]);
 
+  const goToLogin = (event) => {
+    event.preventDefault();
+    sendTrackEvent('edx.bi.login_form.toggled', { category: 'user-engagement' });
+    dispatch(clearThirdPartyAuthContextErrorMessage());
+    dispatch(backupRegistrationForm());
+    navigate(updatePathWithQueryParams(LOGIN_PAGE));
+  };
+
   const handleOnChange = (event) => {
     const { name } = event.target;
     const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
@@ -306,16 +325,33 @@ const RegistrationPage = (props) => {
     }
   }, [autoSubmitRegForm, userPipelineDataLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Progressive profiling needs a logged-in user. CBA registration returns
+  // authenticated_user: null until email is activated — show the notice instead.
+  const hasAuthenticatedUser = Boolean(
+    registrationResult.authenticatedUser
+    && (registrationResult.authenticatedUser.userId
+      || registrationResult.authenticatedUser.username),
+  );
+
   const redirectToProgressiveProfilingPage = (
     getConfig().ENABLE_PROGRESSIVE_PROFILING_ON_AUTHN
-    && !!Object.keys(optionalFields.fields).length
+    && !!Object.keys(optionalFields.fields || {}).length
+    && hasAuthenticatedUser
+  );
+
+  const previewActivationNotice = (
+    process.env.NODE_ENV === 'development'
+    && (queryParams.preview_activation === '1' || queryParams.preview_activation === 'true')
   );
 
   const showActivationNotice = (
-    registrationResult.success
-    && !currentProvider
-    && !registrationEmbedded
-    && !redirectToProgressiveProfilingPage
+    previewActivationNotice
+    || (
+      registrationResult.success
+      && !currentProvider
+      && !registrationEmbedded
+      && !redirectToProgressiveProfilingPage
+    )
   );
 
   const renderForm = () => {
@@ -347,206 +383,252 @@ const RegistrationPage = (props) => {
         {showActivationNotice && (
           <div
             id="registration-activation-notice"
-            className="mw-xs mt-5 text-center"
+            className="cba-auth-card cba-auth-card--notice"
             role="status"
           >
-            <h2>Check your email to activate account</h2>
-            <p>
-              We sent you an activation email. Check your email and activate
-              your account before signing in.
-            </p>
-            <p>
-              You will not be able to sign in until your account has been activated.
+            <header className="cba-auth-card__header">
+              <p className="cba-auth-card__eyebrow">
+                {formatMessage(messages['registration.activation.eyebrow'])}
+              </p>
+              <h2 className="cba-auth-card__title">
+                {formatMessage(messages['registration.activation.heading'])}
+              </h2>
+              <p className="cba-auth-card__lead">
+                {formatMessage(messages['registration.activation.lead'])}
+              </p>
+              <p className="cba-auth-card__lead">
+                {formatMessage(messages['registration.activation.note'])}
+              </p>
+            </header>
+            <p className="cba-auth-card__footer mb-0">
+              <Link
+                className="cba-auth-notice__cta"
+                to={updatePathWithQueryParams(LOGIN_PAGE)}
+              >
+                {formatMessage(messages['registration.activation.sign.in'])}
+              </Link>
             </p>
           </div>
         )}
         {!showActivationNotice && autoSubmitRegForm && !errorCode.type && (
-          <div className="mw-xs mt-5 text-center">
+          <div className="cba-auth-card cba-auth-card--notice text-center">
             <Spinner animation="border" variant="primary" id="tpa-spinner" />
           </div>
         )}
         {!showActivationNotice && !(autoSubmitRegForm && !errorCode.type) && (
           <div
             className={classNames(
-              'mw-xs mt-3',
+              'cba-auth-register',
               { 'w-100 m-auto pt-4 main-content': registrationEmbedded },
             )}
           >
-            <ThirdPartyAuthAlert
-              currentProvider={currentProvider}
-              platformName={platformName}
-              referrer={REGISTER_PAGE}
-            />
-            <RegistrationFailure
-              errorCode={errorCode.type}
-              failureCount={errorCode.count}
-              context={{ provider: currentProvider, errorMessage: thirdPartyAuthErrorMessage }}
-            />
-            <Form id="registration-form" name="registration-form">
-
-              <ConfigurableRegistrationForm
-                email={formFields.email}
-                fieldErrors={errors}
-                formFields={configurableFormFields}
-                setFieldErrors={registrationEmbedded ? setTemporaryErrors : setErrors}
-                setFormFields={setConfigurableFormFields}
-                autoSubmitRegistrationForm={autoSubmitRegForm}
-                fieldDescriptions={fieldDescriptions}
-                optionalFields={optionalFields}
-                renderCountryField={false}
+            <div className="cba-auth-card cba-auth-card--register">
+              <header className="cba-auth-card__header">
+                <p className="cba-auth-card__eyebrow">
+                  {formatMessage(messages['registration.page.eyebrow'])}
+                </p>
+                <h1 className="cba-auth-card__title">
+                  {formatMessage(messages['registration.page.heading'])}
+                </h1>
+                <p className="cba-auth-card__lead">
+                  {formatMessage(messages['registration.page.subheading'], { siteName: platformName })}
+                </p>
+              </header>
+              <ThirdPartyAuthAlert
+                currentProvider={currentProvider}
+                platformName={platformName}
+                referrer={REGISTER_PAGE}
               />
-
-              <EmailField
-                name="email"
-                value={formFields.email}
-                confirmEmailValue={configurableFormFields?.confirm_email}
-                handleErrorChange={handleErrorChange}
-                handleChange={handleOnChange}
-                errorMessage={errors.email}
-                helpText={[formatMessage(messages['help.text.email'])]}
-                floatingLabel={formatMessage(messages['registration.email.label'])}
+              <RegistrationFailure
+                errorCode={errorCode.type}
+                failureCount={errorCode.count}
+                context={{ provider: currentProvider, errorMessage: thirdPartyAuthErrorMessage }}
               />
+              <Form id="registration-form" name="registration-form">
 
-              {!flags.autoGeneratedUsernameEnabled && (
-                <UsernameField
-                  name="username"
-                  spellCheck="false"
-                  value={formFields.username}
-                  handleChange={handleOnChange}
-                  handleErrorChange={handleErrorChange}
-                  errorMessage={errors.username}
-                  helpText={[formatMessage(messages['help.text.username.1']), formatMessage(messages['help.text.username.2'])]}
-                  floatingLabel={formatMessage(messages['registration.username.label'])}
+                <ConfigurableRegistrationForm
+                  email={formFields.email}
+                  fieldErrors={errors}
+                  formFields={configurableFormFields}
+                  setFieldErrors={registrationEmbedded ? setTemporaryErrors : setErrors}
+                  setFormFields={setConfigurableFormFields}
+                  autoSubmitRegistrationForm={autoSubmitRegForm}
+                  fieldDescriptions={fieldDescriptions}
+                  optionalFields={optionalFields}
+                  renderCountryField={false}
                 />
-              )}
 
-              <OrganizationCodeField
-                name="organization_code"
-                value={formFields.organization_code || ''}
-                handleChange={handleOnChange}
-                handleErrorChange={handleErrorChange}
-                errorMessage={errors.organization_code}
-                helpText={[
-                  formatMessage(messages['help.text.organization.code']),
-                ]}
-                floatingLabel={formatMessage(
-                  messages['registration.organization.code.label'],
-                )}
-              />
+                <EmailField
+                  name="email"
+                  type="email"
+                  value={formFields.email}
+                  confirmEmailValue={configurableFormFields?.confirm_email}
+                  handleErrorChange={handleErrorChange}
+                  handleChange={handleOnChange}
+                  errorMessage={errors.email}
+                  autoComplete="email"
+                  helpText={[formatMessage(messages['help.text.email'])]}
+                  floatingLabel={formatMessage(messages['registration.email.label'])}
+                />
 
-              <CountryField
-                countryList={countryList}
-                selectedCountry={configurableFormFields.country || {
-                  countryCode: '',
-                  displayValue: '',
-                }}
-                errorMessage={errors.country || ''}
-                onChangeHandler={handleCountryChange}
-                handleErrorChange={handleErrorChange}
-                onFocusHandler={handleCountryFocus}
-                isRequired={Object.prototype.hasOwnProperty.call(fieldDescriptions, 'country')}
-              />
-
-              {!currentProvider && (
-                <>
-                  <PasswordField
-                    name="password"
-                    value={formFields.password}
+                {!flags.autoGeneratedUsernameEnabled && (
+                  <UsernameField
+                    name="username"
+                    spellCheck="false"
+                    autoComplete="nickname"
+                    value={formFields.username}
                     handleChange={handleOnChange}
                     handleErrorChange={handleErrorChange}
-                    errorMessage={errors.password}
-                    floatingLabel={formatMessage(messages['registration.password.label'])}
-                    nameValue={registrationName}
-                    emailValue={formFields.email}
-                    usernameValue={formFields.username}
-                    organizationCode={formFields.organization_code || ''}
+                    errorMessage={errors.username}
+                    helpText={[formatMessage(messages['help.text.username.1']), formatMessage(messages['help.text.username.2'])]}
+                    floatingLabel={formatMessage(messages['registration.username.label'])}
                   />
+                )}
 
-                  <Form.Group
-                    controlId="confirm_password"
-                    isInvalid={Boolean(errors.confirm_password)}
-                  >
-                    <Form.Control
-                      as="input"
-                      className="form-group__form-field"
-                      type={isConfirmPasswordHidden ? 'password' : 'text'}
-                      name="confirm_password"
-                      value={formFields.confirm_password || ''}
-                      autoComplete="new-password"
-                      aria-invalid={Boolean(errors.confirm_password)}
-                      onChange={handleOnChange}
-                      trailingElement={(
-                        <IconButton
-                          name="confirmPasswordIcon"
-                          src={isConfirmPasswordHidden ? Visibility : VisibilityOff}
-                          iconAs={Icon}
-                          onClick={() => setIsConfirmPasswordHidden(value => !value)}
-                          size="sm"
-                          variant="secondary"
-                          alt={formatMessage(
-                            commonMessages[isConfirmPasswordHidden ? 'show.password' : 'hide.password'],
-                          )}
-                        />
-                      )}
-                      floatingLabel={formatMessage(
-                        messages['registration.confirm.password.label'],
-                      )}
-                    />
-                    {errors.confirm_password && (
-                      <Form.Control.Feedback
-                        className="form-text-size"
-                        hasIcon={false}
-                        feedback-for="confirm_password"
-                        type="invalid"
-                      >
-                        {errors.confirm_password}
-                      </Form.Control.Feedback>
-                    )}
-                  </Form.Group>
-                </>
-              )}
+                <OrganizationCodeField
+                  name="organization_code"
+                  value={formFields.organization_code || ''}
+                  handleChange={handleOnChange}
+                  handleErrorChange={handleErrorChange}
+                  errorMessage={errors.organization_code}
+                  helpText={[
+                    formatMessage(messages['help.text.organization.code']),
+                  ]}
+                  floatingLabel={formatMessage(
+                    messages['registration.organization.code.label'],
+                  )}
+                />
 
-              {Object.prototype.hasOwnProperty.call(fieldDescriptions, 'terms_of_service') && (
-                <TermsOfService
-                  value={configurableFormFields.terms_of_service}
-                  onChangeHandler={(event) => {
-                    setConfigurableFormFields(prevState => ({
-                      ...prevState,
-                      terms_of_service: event.target.checked,
-                    }));
-                    setErrors(prevErrors => ({
-                      ...prevErrors,
-                      terms_of_service: '',
-                    }));
+                <CountryField
+                  countryList={countryList}
+                  selectedCountry={configurableFormFields.country || {
+                    countryCode: '',
+                    displayValue: '',
                   }}
-                  errorMessage={errors.terms_of_service}
+                  errorMessage={errors.country || ''}
+                  onChangeHandler={handleCountryChange}
+                  handleErrorChange={handleErrorChange}
+                  onFocusHandler={handleCountryFocus}
+                  isRequired={Object.prototype.hasOwnProperty.call(fieldDescriptions, 'country')}
                 />
-              )}
+                {!currentProvider && (
+                  <>
+                    <PasswordField
+                      name="password"
+                      value={formFields.password}
+                      autoComplete="new-password"
+                      handleChange={handleOnChange}
+                      handleErrorChange={handleErrorChange}
+                      errorMessage={errors.password}
+                      floatingLabel={formatMessage(messages['registration.password.label'])}
+                      nameValue={registrationName}
+                      emailValue={formFields.email}
+                      usernameValue={formFields.username}
+                      organizationCode={formFields.organization_code || ''}
+                    />
 
-              <StatefulButton
-                id="register-user"
-                name="register-user"
-                type="submit"
-                variant="brand"
-                className="register-button mt-4 mb-4"
-                state={submitState}
-                labels={{
-                  default: buttonLabel,
-                  pending: '',
-                }}
-                onClick={handleSubmit}
-                onMouseDown={(e) => e.preventDefault()}
-              />
-              {!registrationEmbedded && (
-                <ThirdPartyAuth
-                  currentProvider={currentProvider}
-                  providers={providers}
-                  secondaryProviders={secondaryProviders}
-                  handleInstitutionLogin={handleInstitutionLogin}
-                  thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
+                    <Form.Group
+                      controlId="confirm_password"
+                      isInvalid={Boolean(errors.confirm_password)}
+                    >
+                      <Form.Control
+                        as="input"
+                        className="form-group__form-field"
+                        type={isConfirmPasswordHidden ? 'password' : 'text'}
+                        name="confirm_password"
+                        value={formFields.confirm_password || ''}
+                        autoComplete="new-password"
+                        aria-invalid={Boolean(errors.confirm_password)}
+                        onChange={handleOnChange}
+                        trailingElement={(
+                          <IconButton
+                            name="confirmPasswordIcon"
+                            src={isConfirmPasswordHidden ? Visibility : VisibilityOff}
+                            iconAs={Icon}
+                            onClick={() => setIsConfirmPasswordHidden(value => !value)}
+                            size="sm"
+                            variant="secondary"
+                            alt={formatMessage(
+                              commonMessages[isConfirmPasswordHidden ? 'show.password' : 'hide.password'],
+                            )}
+                          />
+                        )}
+                        floatingLabel={formatMessage(
+                          messages['registration.confirm.password.label'],
+                        )}
+                      />
+                      {errors.confirm_password && (
+                        <Form.Control.Feedback
+                          className="form-text-size"
+                          hasIcon={false}
+                          feedback-for="confirm_password"
+                          type="invalid"
+                        >
+                          {errors.confirm_password}
+                        </Form.Control.Feedback>
+                      )}
+                    </Form.Group>
+                  </>
+                )}
+
+                {Object.prototype.hasOwnProperty.call(fieldDescriptions, 'terms_of_service') && (
+                  <TermsOfService
+                    value={configurableFormFields.terms_of_service}
+                    onChangeHandler={(event) => {
+                      setConfigurableFormFields(prevState => ({
+                        ...prevState,
+                        terms_of_service: event.target.checked,
+                      }));
+                      setErrors(prevErrors => ({
+                        ...prevErrors,
+                        terms_of_service: '',
+                      }));
+                    }}
+                    errorMessage={errors.terms_of_service}
+                  />
+                )}
+
+                <StatefulButton
+                  id="register-user"
+                  name="register-user"
+                  type="submit"
+                  variant="brand"
+                  className="register-button mt-4 mb-4"
+                  state={submitState}
+                  labels={{
+                    default: buttonLabel,
+                    pending: '',
+                  }}
+                  onClick={handleSubmit}
+                  onMouseDown={(e) => e.preventDefault()}
                 />
-              )}
-            </Form>
+                {!registrationEmbedded && (
+                  <>
+                    <div className="cba-auth-card__footer">
+                      <span>
+                        {formatMessage(messages['registration.already.have.account'])}
+                        {' '}
+                      </span>
+                      <Link
+                        id="login-account"
+                        name="login-account"
+                        to={updatePathWithQueryParams(LOGIN_PAGE)}
+                        onClick={goToLogin}
+                      >
+                        {formatMessage(commonMessages['logistration.sign.in'])}
+                      </Link>
+                    </div>
+                    <ThirdPartyAuth
+                      currentProvider={currentProvider}
+                      providers={providers}
+                      secondaryProviders={secondaryProviders}
+                      handleInstitutionLogin={handleInstitutionLogin}
+                      thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
+                    />
+                  </>
+                )}
+              </Form>
+            </div>
           </div>
         )}
 

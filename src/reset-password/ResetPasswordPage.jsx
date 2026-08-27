@@ -51,6 +51,13 @@ const ResetPasswordPage = (props) => {
     }
   }, [props.status, newPasswordError]);
 
+  useEffect(() => {
+    document.body.classList.add('cba-auth-page');
+    return () => {
+      document.body.classList.remove('cba-auth-page');
+    };
+  }, []);
+
   const validatePasswordFromBackend = async (password) => {
     let errorMessage = '';
     try {
@@ -135,7 +142,17 @@ const ResetPasswordPage = (props) => {
   if (props.status === TOKEN_STATE.PENDING) {
     if (token) {
       props.validateToken(token);
-      return <Spinner animation="border" variant="primary" className="spinner--position-centered" />;
+      return (
+        <BaseContainer>
+          <div className="cba-auth cba-auth--reset">
+            <div id="main-content" className="main-content">
+              <div className="cba-auth-card cba-auth-card--notice text-center">
+                <Spinner animation="border" variant="primary" id="reset-password-spinner" />
+              </div>
+            </div>
+          </div>
+        </BaseContainer>
+      );
     }
   } else if (props.status === PASSWORD_RESET_ERROR) {
     navigate(updatePathWithQueryParams(RESET_PAGE));
@@ -144,7 +161,7 @@ const ResetPasswordPage = (props) => {
   } else {
     return (
       <BaseContainer>
-        <div>
+        <div className="cba-auth cba-auth--reset">
           <Helmet>
             <title>
               {formatMessage(messages['reset.password.page.title'], { siteName: getConfig().SITE_NAME })}
@@ -154,44 +171,57 @@ const ResetPasswordPage = (props) => {
             <Tab title={tabTitle} eventKey={LOGIN_PAGE} />
           </Tabs>
           <div id="main-content" className="main-content">
-            <div className="mw-xs">
-              <ResetPasswordFailure errorCode={errorCode} errorMsg={props.errorMsg} />
-              <h4>{formatMessage(messages['reset.password'])}</h4>
-              <p className="mb-4">{formatMessage(messages['reset.password.page.instructions'])}</p>
-              <Form id="set-reset-password-form" name="set-reset-password-form">
-                <PasswordField
-                  name="newPassword"
-                  value={newPassword}
-                  handleChange={(e) => setNewPassword(e.target.value)}
-                  handleBlur={handleOnBlur}
-                  handleFocus={handleOnFocus}
-                  errorMessage={formErrors.newPassword}
-                  floatingLabel={formatMessage(messages['new.password.label'])}
-                />
-                <PasswordField
-                  name="confirmPassword"
-                  value={confirmPassword}
-                  handleChange={handleConfirmPasswordChange}
-                  handleFocus={handleOnFocus}
-                  errorMessage={formErrors.confirmPassword}
-                  showRequirements={false}
-                  floatingLabel={formatMessage(messages['confirm.password.label'])}
-                />
-                <StatefulButton
-                  id="submit-new-password"
-                  name="submit-new-password"
-                  type="submit"
-                  variant="brand"
-                  className="reset-password--button"
-                  state={props.status}
-                  labels={{
-                    default: formatMessage(messages['reset.password']),
-                    pending: '',
-                  }}
-                  onClick={e => handleSubmit(e)}
-                  onMouseDown={(e) => e.preventDefault()}
-                />
-              </Form>
+            <div className="cba-auth-reset">
+              <div className="cba-auth-card">
+                <ResetPasswordFailure errorCode={errorCode} errorMsg={props.errorMsg} />
+                <header className="cba-auth-card__header">
+                  <p className="cba-auth-card__eyebrow">
+                    {formatMessage(messages['reset.password.page.eyebrow'])}
+                  </p>
+                  <h1 className="cba-auth-card__title">
+                    {formatMessage(messages['reset.password'])}
+                  </h1>
+                  <p className="cba-auth-card__lead">
+                    {formatMessage(messages['reset.password.page.instructions'])}
+                  </p>
+                </header>
+                <Form id="set-reset-password-form" name="set-reset-password-form">
+                  <PasswordField
+                    name="newPassword"
+                    value={newPassword}
+                    autoComplete="new-password"
+                    handleChange={(e) => setNewPassword(e.target.value)}
+                    handleBlur={handleOnBlur}
+                    handleFocus={handleOnFocus}
+                    errorMessage={formErrors.newPassword}
+                    floatingLabel={formatMessage(messages['new.password.label'])}
+                  />
+                  <PasswordField
+                    name="confirmPassword"
+                    value={confirmPassword}
+                    autoComplete="new-password"
+                    handleChange={handleConfirmPasswordChange}
+                    handleFocus={handleOnFocus}
+                    errorMessage={formErrors.confirmPassword}
+                    showRequirements={false}
+                    floatingLabel={formatMessage(messages['confirm.password.label'])}
+                  />
+                  <StatefulButton
+                    id="submit-new-password"
+                    name="submit-new-password"
+                    type="submit"
+                    variant="brand"
+                    className="reset-password--button"
+                    state={props.status}
+                    labels={{
+                      default: formatMessage(messages['reset.password']),
+                      pending: '',
+                    }}
+                    onClick={e => handleSubmit(e)}
+                    onMouseDown={(e) => e.preventDefault()}
+                  />
+                </Form>
+              </div>
             </div>
           </div>
         </div>

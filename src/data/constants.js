@@ -13,6 +13,9 @@ export const ENTERPRISE_LOGIN_URL = '/enterprise/login';
 // Constants
 export const SUPPORTED_ICON_CLASSES = ['apple', 'facebook', 'google', 'microsoft'];
 
+/** Public marketing site (logo / home links) */
+export const CBA_MARKETING_HOME = 'https://centerforbusinessacceleration.com';
+
 // Error Codes
 export const FORM_SUBMISSION_ERROR = 'form-submission-error';
 export const INTERNAL_SERVER_ERROR = 'internal-server-error';

@@ -11,6 +11,11 @@ const messages = defineMessages({
     defaultMessage: 'Reset Password | {siteName}',
     description: 'page title',
   },
+  'reset.password.page.eyebrow': {
+    id: 'reset.password.page.eyebrow',
+    defaultMessage: 'Security',
+    description: 'Small red label above the reset password heading',
+  },
   'reset.password': {
     id: 'reset.password',
     defaultMessage: 'Reset password',
@@ -18,7 +23,7 @@ const messages = defineMessages({
   },
   'reset.password.page.instructions': {
     id: 'reset.password.page.instructions',
-    defaultMessage: 'Enter and confirm your new password.',
+    defaultMessage: 'Choose a new password for your account.',
     description: 'Instructions message for reset password page.',
   },
   'new.password.label': {
