@@ -1,24 +1,10 @@
-import { getConfig } from '@edx/frontend-platform';
-
 import { CBA_MARKETING_HOME } from '../data/constants';
 
-function themeImage(filename) {
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname || '';
-    if (host === 'localhost' || host === '127.0.0.1') {
-      return `/static/cba-theme/images/${filename}`;
-    }
-  }
-  const lms = (getConfig().LMS_BASE_URL || '').replace(/\/$/, '');
-  if (lms) {
-    return `${lms}/static/cba-theme/images/${filename}`;
-  }
-  return `${CBA_MARKETING_HOME}/static/cba/images/${filename}`;
-}
+import { cbaLogoUrl } from './cbaAssets';
 
 export default function Footer() {
   const home = CBA_MARKETING_HOME;
-  const logo = themeImage('logo.svg');
+  const logo = cbaLogoUrl('logo.svg');
 
   return (
     <footer className="footer">

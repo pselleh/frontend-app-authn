@@ -1,35 +1,32 @@
-import { getConfig } from '@edx/frontend-platform';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { CBA_MARKETING_HOME, LOGIN_PAGE, REGISTER_PAGE } from '../data/constants';
 import { updatePathWithQueryParams } from '../data/utils';
 
-function themeImage(filename) {
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname || '';
-    if (host === 'localhost' || host === '127.0.0.1') {
-      return `/static/cba-theme/images/${filename}`;
-    }
-  }
-  const lms = (getConfig().LMS_BASE_URL || '').replace(/\/$/, '');
-  if (lms) {
-    return `${lms}/static/cba-theme/images/${filename}`;
-  }
-  return `${CBA_MARKETING_HOME}/static/cba/images/${filename}`;
-}
+import { cbaLogoUrl } from './cbaAssets';
 
 export default function Header({ dark = false, onToggleDark = null }) {
   const home = CBA_MARKETING_HOME;
   const loginPath = updatePathWithQueryParams(LOGIN_PAGE);
   const registerPath = updatePathWithQueryParams(REGISTER_PAGE);
-  const logoLight = themeImage('logo-dark.svg');
-  const logoDark = themeImage('logo.svg');
+  const logoLight = cbaLogoUrl('logo-dark.svg');
+  const logoDark = cbaLogoUrl('logo.svg');
+  const [navOpen, setNavOpen] = useState(false);
 
   const handleToggle = (event) => {
     if (typeof onToggleDark === 'function') {
       onToggleDark(event.target.checked);
     }
+  };
+
+  const toggleNav = () => {
+    setNavOpen((open) => !open);
+  };
+
+  const closeNav = () => {
+    setNavOpen(false);
   };
 
   return (
@@ -67,29 +64,37 @@ export default function Header({ dark = false, onToggleDark = null }) {
             <button
               className="navbar-toggler cba-nav__toggler d-lg-none"
               type="button"
-              data-toggle="collapse"
-              data-target="#navbarNav"
               aria-controls="navbarNav"
-              aria-expanded="false"
+              aria-expanded={navOpen}
               aria-label="Toggle navigation"
+              onClick={toggleNav}
             >
               <span className="navbar-toggler-icon" />
             </button>
           </div>
 
-          <div className="collapse navbar-collapse cba-nav__collapse" id="navbarNav">
+          <div
+            className={`navbar-collapse cba-nav__collapse${navOpen ? ' cba-nav__collapse--open' : ''}`}
+            id="navbarNav"
+          >
             <div className="cba-nav__row d-flex flex-column flex-lg-row align-items-lg-center w-100">
               <ul className="navbar-nav cba-nav__main align-items-lg-center mb-0">
-                <li className="nav-item"><a className="nav-link" href={`${home}/veterans`}>Veterans</a></li>
-                <li className="nav-item"><a className="nav-link" href={`${home}/about`}>About</a></li>
-                <li className="nav-item"><a className="nav-link" href={`${home}/contact`}>Contact</a></li>
+                <li className="nav-item">
+                  <a className="nav-link" href={`${home}/veterans`} onClick={closeNav}>Veterans</a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link" href={`${home}/about`} onClick={closeNav}>About</a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link" href={`${home}/contact`} onClick={closeNav}>Contact</a>
+                </li>
               </ul>
 
               <div className="cba-nav__actions d-flex flex-column flex-lg-row align-items-lg-center">
-                <Link to={loginPath} className="cba-nav__login">
+                <Link to={loginPath} className="cba-nav__login" onClick={closeNav}>
                   Login
                 </Link>
-                <Link to={registerPath} className="cba-nav__enroll">
+                <Link to={registerPath} className="cba-nav__enroll" onClick={closeNav}>
                   Enroll now
                 </Link>
               </div>
