@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import CbaAuthnChrome from './CbaAuthnChrome';
+import { cbaFaviconUrl } from './cba-shell/cbaAssets';
 import {
   EmbeddedRegistrationRoute,
   NotFoundPage,
@@ -53,11 +54,16 @@ const resolveSiteName = () => {
 
 const buildFaviconUrl = () => {
   const configured = getConfig().FAVICON_URL;
-  if (configured && configured !== 'null' && !configured.includes('edx-cdn.org')) {
+  if (
+    configured
+    && configured !== 'null'
+    && !configured.includes('edx-cdn.org')
+    && !configured.startsWith('/favicon')
+  ) {
     return configured;
   }
 
-  return '/favicon.ico';
+  return cbaFaviconUrl();
 };
 
 const MainApp = () => {
@@ -68,12 +74,8 @@ const MainApp = () => {
     <AppProvider store={configureStore()}>
       <CbaAuthnChrome>
         <Helmet>
-          <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-          <link
-            rel="shortcut icon"
-            href={faviconUrl}
-            type="image/x-icon"
-          />
+          <link rel="icon" href={faviconUrl} type="image/svg+xml" />
+          <link rel="shortcut icon" href={faviconUrl} type="image/svg+xml" />
           <meta name="application-name" content={siteName} />
 
           <script

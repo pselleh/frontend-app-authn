@@ -10,6 +10,24 @@ body {
   color: var(--text-primary) !important;
 }
 
+// Paragon defaults differ from CBAUI — inherit IBM Plex Sans on auth chrome + forms.
+.cba-layout,
+.cba-layout .pgn__btn,
+.cba-layout .btn,
+.cba-layout .form-control,
+.cba-layout input,
+.cba-layout select,
+.cba-layout textarea,
+.cba-layout label,
+.cba-layout .pgn__form-label,
+.cba-layout .pgn__form-control,
+.cba-layout .pgn__form-control-floating-label-text,
+.cba-layout .pgn__alert,
+.cba-layout .dropdown-menu,
+.cba-layout .nav-link {
+  font-family: var(--cba-font, "IBM Plex Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+}
+
 html[data-theme='dark'] body {
   background-color: var(--bg-body) !important;
   color: var(--text-primary) !important;

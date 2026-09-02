@@ -8,12 +8,20 @@ const resolveSiteName = () => {
   return 'Center for Business Acceleration';
 };
 
+const CBA_MARKETING_FAVICON = 'https://centerforbusinessacceleration.com/static/cba/images/favicon.svg';
+
 const resolveFaviconUrl = () => {
   const configured = process.env.FAVICON_URL;
-  if (configured && configured !== 'null' && !configured.includes('edx-cdn.org')) {
+  if (
+    configured
+    && configured !== 'null'
+    && !configured.includes('edx-cdn.org')
+    && !configured.startsWith('/favicon')
+  ) {
     return configured;
   }
-  return '/favicon.ico';
+  // AuthN is served under /authn/; root /favicon.* hits SPA HTML fallback on prod.
+  return CBA_MARKETING_FAVICON;
 };
 
 const configuration = {
